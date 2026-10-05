@@ -11,6 +11,22 @@
 الفرعين **قريبين من بعض** (حوالين ميدان الجامع)، و**مواعيدهم مختلفة** — فده محور الدمج: في أي ساعة، غالبًا فيه فرع فاتح.
 **VIP:** كل اشتراك تابع لفرعه، بس اشتراك VIP في الفرع الجديد (16 حصة 1000 ج · 30 حصة 1200 ج) بيدخّل صاحبه الفرع الأول كمان.
 
+## أونلاين
+
+**https://cezar-gym.github.io/branches/** — GitHub Pages من repo `cezar-gym/branches` (فرع `main`، الجذر).
+بوابة الأعضاء: https://cezar-gym.github.io/branches/member.html
+الموقع القديم لسه شغال زي ما هو على https://cezar-gym.github.io/
+
+**التحديث:** عدّل الملفات هنا وبعدين:
+
+```bash
+git -C C:/Users/Ahmed/cezar-new-site add -A
+git -C C:/Users/Ahmed/cezar-new-site commit -m "تحديث"
+git -C C:/Users/Ahmed/cezar-new-site push
+```
+
+الموقع بيتحدّث خلال دقيقة. ⚠️ لما تبدّل `data/portal.js` بالبيانات الحقيقية، الملف بيبقى عام على GitHub — متشفّر، بس عام.
+
 ## التشغيل محليًا
 
 ```bash
