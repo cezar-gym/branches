@@ -6,6 +6,7 @@
 window.CZParticles = (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const COLORS = ['#A8DC42', '#F3F1EB'];
+  const tilt = { x: 0, y: 0 }; // ميل الموبايل (-1..1) — كل نقطة بتتحرك بعمق مختلف
 
   function init(canvas, src) {
     if (!canvas || !canvas.getContext) return;
@@ -67,6 +68,7 @@ window.CZParticles = (() => {
           let hx = p.sx + (p.tx - p.sx) * local;
           let hy = p.sy + (p.ty - p.sy) * local;
           if (!still) {
+            hx += tilt.x * 16 * (0.4 + p.d); hy += tilt.y * 16 * (0.4 + p.d);
             hx += Math.sin(now * 0.0011 + p.w) * 0.7;
             hy += Math.cos(now * 0.0013 + p.w) * 0.7;
             const dx = p.x - mouse.x, dy = p.y - mouse.y, d2 = dx * dx + dy * dy;
@@ -109,5 +111,6 @@ window.CZParticles = (() => {
     host.addEventListener('pointerdown', setM, { passive: true });
     host.addEventListener('pointerleave', () => { mouse.x = mouse.y = -1e4; });
   }
-  return { init };
+  const setTilt = (x, y) => { tilt.x = x; tilt.y = y; };
+  return { init, tilt: setTilt };
 })();

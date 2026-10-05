@@ -677,6 +677,116 @@ window.CZ = {
  "hero": {
   "cut": "assets/img/hero-cut.webp",
   "cutSmall": "assets/img/hero-cut@s.webp",
-  "alt": "رسم لمبنى فرع سيزر جيم الجديد بلافتتين CEZAR GYM"
+  "alt": "رسم لمبنى فرع سيزر جيم الجديد: الدور الأرضي والدورين الازاز بلافتتين CEZAR GYM"
+ },
+ "gallery": {
+  "b1": [
+   {
+    "img": "b1-floor",
+    "w": 1600,
+    "h": 886,
+    "name": "قاعة الأوزان",
+    "latin": "THE ORIGINAL",
+    "line": "سكوات وسميث وبنشات أوليمبي."
+   },
+   {
+    "img": "b1-technogym",
+    "w": 1600,
+    "h": 1240,
+    "name": "دمبلز تكنوجيم",
+    "latin": "TECHNOGYM",
+    "line": "الاسم مكتوب على الحديد."
+   },
+   {
+    "img": "b1-plates",
+    "w": 1600,
+    "h": 886,
+    "name": "شجر الأوزان",
+    "latin": "PLATES",
+    "line": "على طول الحيطة."
+   },
+   {
+    "img": "b1-cardio",
+    "w": 1600,
+    "h": 718,
+    "name": "الكارديو",
+    "latin": "CARDIO",
+    "line": "تريدميل على شبابيك واسعة."
+   },
+   {
+    "img": "b1-perfect",
+    "w": 1600,
+    "h": 1044,
+    "name": "الأجهزة",
+    "latin": "MACHINES",
+    "line": "حديد لكل عضلة."
+   },
+   {
+    "img": "b1-lockers",
+    "w": 1600,
+    "h": 1255,
+    "name": "اللوكرات",
+    "latin": "LOCKERS",
+    "line": "لوكر بقفل لكل عضو."
+   }
+  ],
+  "b2": [
+   {
+    "img": "fitgate-team",
+    "w": 1600,
+    "h": 1066,
+    "name": "FIT GATE",
+    "latin": "RECEPTION",
+    "line": "الاستقبال — هنا بتبدأ."
+   },
+   {
+    "img": "plate-red",
+    "w": 1600,
+    "h": 1066,
+    "name": "أجهزة البليت",
+    "latin": "PLATE LOADED",
+    "line": "الوزن على الجهاز، والحركة حرّة."
+   },
+   {
+    "img": "dumbbells",
+    "w": 1600,
+    "h": 1066,
+    "name": "الدمبلز",
+    "latin": "FREE WEIGHTS",
+    "line": "رفوف كاملة قدّام المراية."
+   },
+   {
+    "img": "purple-row",
+    "w": 1600,
+    "h": 1066,
+    "name": "الأجهزة",
+    "latin": "MACHINES",
+    "line": "لكل عضلة جهاز."
+   },
+   {
+    "img": "treadmills",
+    "w": 1600,
+    "h": 1066,
+    "name": "الكارديو",
+    "latin": "CARDIO DECK",
+    "line": "تجري وانت شايف الشارع."
+   },
+   {
+    "img": "ppl-wall",
+    "w": 1600,
+    "h": 1066,
+    "name": "الكابلات",
+    "latin": "PUSH · PULL",
+    "line": "والباقي عليك."
+   },
+   {
+    "img": "lockers",
+    "w": 1600,
+    "h": 1066,
+    "name": "اللوكرات",
+    "latin": "LOCKERS",
+    "line": "سيب حاجتك واطّمن."
+   }
+  ]
  }
 };
