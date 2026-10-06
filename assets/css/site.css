@@ -70,31 +70,82 @@ html.intro body { overflow: hidden; }
 .sec-head h2 { font-size: clamp(36px, 9.6vw, 92px); font-weight: 800; line-height: 1.1; max-width: 16ch; }
 .sec-head p { color: var(--paper-dim); max-width: 40ch; font-size: 17px; }
 
-/* ---------- 1 · الهيرو ---------- */
-.hero { position: relative; min-height: 100svh; display: flex; flex-direction: column; padding: 76px 0 24px; overflow: hidden; }
-.hero__sky { position: absolute; inset: 0; background: radial-gradient(ellipse 90% 55% at 50% 40%, #1d1f24 0%, var(--bg) 72%); pointer-events: none; }
-.hero__meta { position: relative; display: flex; justify-content: space-between; padding-inline: var(--gx); color: var(--paper-dim); }
-.hero__stage { position: relative; flex: 1; min-height: 52vw; display: grid; place-items: end center; margin-top: 8px; }
-.hero__big {
-  position: absolute; inset: 4% 0 auto; display: flex; justify-content: center; direction: ltr;
-  font-family: var(--f-lat); font-weight: 600; font-size: 28vw; line-height: 0.8; letter-spacing: -0.05em; color: var(--paper);
+/* ---------- 1 · الهيرو: سما المغرب ← CEZAR GYM ← المبنى بالليل ← الكلام ----------
+   المقاسات كلها من عرض المشهد (--sw) وخط الأرض (--base):
+   صورة المبنى 852×1250 — قاعدته عند 0.7265 من العرض، وطوله 0.698 من العرض.
+   السما: الأفق البرتقالي عند 0.841 من طولها (2.13 من عرضها) → بيقع ورا سطح المبنى. */
+.hero {
+  --sw: clamp(72vw, calc((100svh - 500px) * 1.43), 100vw);
+  --base: calc(100svh - 296px);
+  --hz: calc(var(--base) - var(--sw) * 0.36);
+  position: relative; isolation: isolate; min-height: 100svh; display: flex; flex-direction: column;
+  padding: 92px 0 24px; overflow: hidden; background: #0b0d12;
 }
-.hero__big .hb { display: inline-block; overflow: hidden; padding-top: 0.05em; will-change: transform; }
+.hero__sky { position: absolute; inset: 0; z-index: -3; pointer-events: none; }
+.hero__sky picture { display: contents; }
+.hero__sky img { position: absolute; left: 0; width: 100%; max-width: none; height: auto; top: calc(var(--hz) - 100vw * 1.791); transform-origin: 50% 100%; will-change: transform; }
+.hero__ground { position: absolute; inset: var(--base) 0 0; z-index: -2; background: linear-gradient(#1b1511, var(--bg) 75%); }
+.hero__meta { position: relative; z-index: 4; display: flex; justify-content: space-between; padding-inline: var(--gx); color: rgba(243, 241, 235, 0.66); letter-spacing: 0.34em; }
+.hero__word { position: relative; z-index: 1; display: grid; justify-items: center; margin-top: clamp(14px, 3.2svh, 34px); will-change: transform; }
+.hero__big {
+  display: flex; justify-content: center; direction: ltr;
+  font-family: var(--f-lat); font-weight: 700; font-size: 25.6vw; line-height: 0.8; letter-spacing: -0.03em; color: #F7F6F1;
+  -webkit-mask-image: url('../img/grunge.webp'); mask-image: url('../img/grunge.webp');
+  -webkit-mask-size: 760px auto; mask-size: 760px auto;
+}
+.hero__big .hb { display: inline-block; overflow: hidden; padding-top: 0.06em; will-change: transform; }
 .hero__big .hbi { display: inline-block; will-change: transform; }
-.hero__building { position: relative; width: min(100%, 980px); height: auto; padding-inline: 2vw; transform-origin: 50% 80%; will-change: transform; user-select: none; -webkit-user-drag: none; }
-.hero__copy { position: relative; padding: 18px var(--gx) 0; display: grid; gap: 12px; }
-.hero__title { font-size: clamp(38px, 11vw, 72px); font-weight: 800; line-height: 1.05; }
-.hero__sub { color: var(--paper-dim); font-size: 17px; line-height: 1.6; max-width: 34ch; }
-.hero__ctas { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 4px; }
-.hero__ctas .btn { min-height: 56px; font-size: 17px; }
-.tiltbtn { justify-self: start; min-height: 40px; padding: 0 16px; border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(168, 220, 66, 0.5); color: var(--lime); font-size: 14px; font-weight: 700; }
-@media (min-width: 600px) { .hero__ctas { grid-template-columns: auto auto; justify-content: start; } }
+.hero__gym {
+  display: flex; align-items: center; gap: 4.4vw; margin-top: 3.4vw; direction: ltr;
+  font-family: var(--f-lat); font-weight: 700; font-size: 10.6vw; line-height: 0.8; letter-spacing: 0.34em; color: var(--lime);
+  text-shadow: 0 0 18px var(--lime-glow), 0 0 42px var(--lime-haze);
+}
+.hero__gym span { margin-right: -0.34em; }
+.hero__gym i { width: 15vw; height: 3px; border-radius: 3px; background: var(--lime); box-shadow: 0 0 10px var(--lime-glow), 0 0 26px var(--lime-haze); }
+.hero__scene { position: absolute; z-index: 2; left: 50%; top: calc(var(--base) - var(--sw) * 0.7265); width: var(--sw); transform: translateX(-50%); pointer-events: none; }
+.hero__building {
+  width: 100%; height: auto; transform-origin: 50% 50%; will-change: transform; user-select: none; -webkit-user-drag: none;
+  -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent);
+}
+.hero__shade { position: absolute; inset: auto 0 0; height: 44%; z-index: 3; pointer-events: none; background: linear-gradient(to top, rgba(11, 12, 14, 0.94) 6%, rgba(11, 12, 14, 0.5) 46%, rgba(11, 12, 14, 0)); }
+.hero__copy { position: relative; z-index: 4; margin-top: auto; padding: 0 var(--gx); display: grid; justify-items: center; gap: 12px; text-align: center; }
+.hero__title { font-size: clamp(40px, 11.4vw, 76px); font-weight: 800; line-height: 1.1; text-shadow: 0 2px 28px rgba(0, 0, 0, 0.55); }
+.hero__dot { color: var(--lime); text-shadow: 0 0 16px var(--lime-glow), 0 0 36px var(--lime-haze); }
+.hero__sub { color: rgba(243, 241, 235, 0.8); font-size: 17px; line-height: 1.65; max-width: 30ch; text-shadow: 0 1px 14px rgba(0, 0, 0, 0.7); }
+.hero__ctas { display: grid; grid-template-columns: 1fr; gap: 10px; width: 100%; max-width: 460px; margin-top: 6px; }
+.hero__ctas .btn { min-height: 58px; font-size: 18px; }
+.hero__ctas .btn--ghost { background: rgba(11, 12, 14, 0.42); box-shadow: inset 0 0 0 1.5px rgba(243, 241, 235, 0.55); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.hero__meta { align-items: center; }
+.tiltbtn { display: grid; place-items: center; width: 34px; height: 34px; margin-block: -10px; border-radius: 50%; color: var(--lime); box-shadow: inset 0 0 0 1px var(--lime-glow), 0 0 16px var(--lime-haze); -webkit-tap-highlight-color: transparent; }
+.tiltbtn svg { width: 18px; height: 18px; filter: drop-shadow(0 0 5px var(--lime-glow)); }
+@media (min-width: 600px) and (max-width: 999px) { .hero__ctas { grid-template-columns: 1fr 1fr; max-width: 560px; } }
+/* تابلت وكمبيوتر: المبنى بيغطي نص CEZAR، فـGYM بتطلع سطر صغير فوقها */
+@media (min-width: 600px) {
+  .hero__gym { position: absolute; top: calc(-1 * clamp(14px, 3vh, 30px) - 0.95em); font-size: 13px; gap: 16px; letter-spacing: 0.6em; margin: 0; }
+  .hero__gym span { margin-right: -0.6em; }
+  .hero__gym i { width: 64px; height: 2px; }
+}
+/* شاشة قصيرة: المشهد أضيق من الشاشة → أطراف الصورة بتدوب في الأرض والسما */
+@media (max-width: 999px) and (max-height: 760px), (min-width: 600px) and (max-width: 999px) {
+  .hero__scene { -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
+}
 @media (min-width: 1000px) {
-  .hero { padding-top: 96px; }
-  .hero__big { font-size: min(26vw, 460px); inset-block-start: 2%; }
-  .hero__building { width: min(64vw, 1100px); }
-  .hero__copy { position: absolute; inset: auto var(--gx) 40px auto; width: 34%; padding: 0; }
-  .hero__stage { place-items: end end; padding-inline-end: 3vw; } /* RTL: end = الشمال، والكلام على اليمين */
+  .hero {
+    --sw: clamp(560px, calc((100svh - 330px) / 0.698), 54vw);
+    --base: calc(100svh - 96px);
+    --hz: calc(var(--base) - var(--sw) * 0.3);
+    padding-top: 104px; padding-bottom: 56px;
+  }
+  .hero__sky img { top: 0; height: calc(var(--hz) + 8.6vw); object-fit: cover; object-position: 50% 100%; } /* الأفق عند 86.6% من الصورة العريضة */
+  .hero__big { font-size: min(23vw, 420px); }
+  .hero__word { margin-top: 1.5vh; }
+  .hero__meta { padding-top: 2px; }
+  .hero__scene { left: 37%; -webkit-mask-image: linear-gradient(90deg, transparent, #000 13%, #000 87%, transparent); mask-image: linear-gradient(90deg, transparent, #000 13%, #000 87%, transparent); }
+  .hero__shade { height: 34%; }
+  .hero__copy { position: absolute; inset: auto var(--gx) 56px auto; width: min(31%, 460px); padding: 0; justify-items: start; text-align: start; }
+  .hero__title { font-size: clamp(48px, 4.6vw, 80px); }
+  .hero__ctas { grid-template-columns: auto auto; justify-content: start; }
+  .hero__ctas .btn { padding-inline: 26px; }
 }
 
 /* ---------- 2 · دلوقتي ---------- */
@@ -102,7 +153,7 @@ html.intro body { overflow: hidden; }
 .now__list { display: grid; gap: 10px; }
 .now__item { width: 100%; text-align: start; color: inherit; font: inherit; -webkit-tap-highlight-color: transparent; transition: transform 0.3s var(--cz), box-shadow 0.4s; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 18px; background: var(--ink); box-shadow: inset 0 0 0 1px var(--line); min-height: 64px; }
 .now__item:active { transform: scale(0.98); }
-.now__item.is-open { box-shadow: inset 0 0 0 1px rgba(168, 220, 66, 0.35); }
+.now__item.is-open { box-shadow: inset 0 0 0 1px rgba(189, 247, 59, 0.35); }
 .now__item .n { font-family: var(--f-lat); font-weight: 600; font-size: 26px; line-height: 1; }
 .now__item.b2 .n { color: var(--lime); }
 .now__item b { display: block; font-weight: 800; font-size: 16px; }
@@ -129,7 +180,7 @@ html.intro body { overflow: hidden; }
 .map__roads path { fill: none; stroke: #26282d; stroke-width: 40; stroke-linecap: round; }
 .map__minor path { fill: none; stroke: #1c1e22; stroke-width: 16; stroke-linecap: round; }
 .map__ring { fill: none; stroke: #26282d; stroke-width: 40; }
-.map__park { fill: #1d2818; stroke: rgba(168, 220, 66, 0.35); stroke-width: 2; }
+.map__park { fill: #1d2818; stroke: rgba(189, 247, 59, 0.35); stroke-width: 2; }
 .map__poi { fill: #3a3c42; }
 .map__label { fill: rgba(243, 241, 235, 0.62); font-family: var(--f-ar); font-size: 30px; font-weight: 800; }
 .map__label--sm { font-size: 24px; fill: rgba(243, 241, 235, 0.45); font-weight: 700; }
@@ -232,61 +283,90 @@ html.intro body { overflow: hidden; }
 .acc__panel img { width: 100%; height: auto; border-radius: 18px; margin-bottom: 12px; }
 .acc__panel p { color: var(--paper-dim); padding-bottom: 20px; font-size: 16px; }
 
-/* ---------- 9 · الساعة (12 ساعة) ---------- */
-.clock { padding: 80px 0; }
-.clock__ctrl { display: flex; flex-wrap: wrap; gap: 10px; padding: 26px var(--gx) 0; }
-.days { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 14px var(--gx) 4px; scroll-snap-type: x proximity; }
-.days::-webkit-scrollbar { display: none; }
-.days button { flex: none; scroll-snap-align: start; min-height: 44px; padding: 0 16px; border-radius: 999px; font-size: 15px; font-weight: 700; box-shadow: inset 0 0 0 1px var(--line); color: var(--paper-dim); transition: background 0.4s var(--cz), color 0.4s; }
-.days button[aria-pressed="true"] { background: var(--paper); color: var(--ink); box-shadow: none; }
-.days button .t { font-size: 10px; display: block; margin-top: -4px; }
-.dial12 { display: grid; justify-items: center; gap: 10px; padding: 26px var(--gx) 0; }
-.dial12__b2 { font-size: clamp(19px, 5.4vw, 26px); font-weight: 900; color: var(--lime); text-align: center; }
-.dial12__face { position: relative; width: min(100%, 520px); aspect-ratio: 1; touch-action: none; }
-.dial12__face svg { width: 100%; height: 100%; overflow: visible; cursor: grab; -webkit-tap-highlight-color: transparent; }
-.dial12__face svg:active { cursor: grabbing; }
-.dial12__face svg:focus-visible { outline: 2px solid var(--lime); outline-offset: 6px; border-radius: 50%; }
-.d12__track { fill: none; stroke: #1d1f23; stroke-width: 46; }
-.d12__arc { fill: none; stroke-width: 46; stroke-linecap: butt; }
-.d12__arc.b2 { stroke: var(--lime); }
-.d12__arc.b1 { stroke: var(--paper); }
-.d12__arc.other { stroke-opacity: 0.12; }
-.d12__tick { stroke: rgba(14, 15, 17, 0.9); stroke-width: 3; }
-.d12__num.is-major { fill: var(--paper); }
-.d12__num { fill: var(--paper-dim); font-family: var(--f-lat); font-weight: 600; font-size: 26px; }
-.d12__b1lbl { fill: var(--paper); font-family: var(--f-ar); font-weight: 900; font-size: 30px; }
-.d12__hand { stroke: var(--bg); stroke-width: 7; stroke-linecap: round; }
-.d12__knob { fill: var(--paper); stroke: var(--bg); stroke-width: 7; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5)); }
-.d12__hit { fill: transparent; touch-action: none; cursor: grab; }
-.d12__track--b2 { transition: stroke 0.5s; }
-.dial12.is-drag .d12__knob { r: 24; }
-.d12__knob { transition: r 0.3s var(--cz); }
-.d12__now { transition: opacity 0.4s; }
-.d12__hub { fill: var(--bg); stroke: var(--paper); stroke-width: 3; }
-.d12__now { fill: var(--bg); stroke: var(--lime); stroke-width: 4; }
-.d12__center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; pointer-events: none; padding-top: 9%; }
-.d12__center .lat { font-weight: 600; font-size: clamp(46px, 13vw, 76px); line-height: 1; letter-spacing: -0.03em; }
-.d12__center span:last-child { font-weight: 800; color: var(--paper-dim); margin-top: 4px; }
-.dial12__addr { display: grid; gap: 6px; text-align: center; font-size: 15px; font-weight: 700; line-height: 1.5; max-width: 38ch; }
-.dial12__addr .a2 { color: var(--lime); }
-.dial12__addr .a1 { color: var(--paper); }
-.hf-result { display: grid; gap: 10px; padding: 22px var(--gx) 0; }
-.hf-br { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: 18px; background: var(--ink); box-shadow: inset 0 0 0 1px var(--line); min-height: 64px; transition: box-shadow 0.4s; }
-.hf-br b { font-weight: 800; }
-.hf-br .n { font-weight: 600; color: var(--paper); }
-.hf-br.b2 .n { color: var(--lime); }
-.hf-br .st { font-size: 14px; color: var(--muted); }
-.hf-br.is-open { box-shadow: inset 0 0 0 1.5px rgba(168, 220, 66, 0.6); }
-.hf-br.is-open .st { color: var(--lime); font-weight: 800; }
-.hf-br a { min-height: 44px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: 999px; background: var(--lime); color: var(--ink); font-size: 14px; font-weight: 800; white-space: nowrap; }
-.hf-cover { padding: 14px var(--gx) 0; color: var(--paper-dim); font-size: 15px; }
-.hf-cover b { color: var(--paper); font-family: var(--f-lat); font-weight: 600; }
-.clock__nowbtn { margin: 16px var(--gx) 0; }
-@media (min-width: 1000px) {
-  .clock { display: grid; grid-template-columns: 1fr 1fr; grid-template-areas: 'head dial' 'ctrl dial' 'days dial' 'res dial' 'cov dial' 'now dial'; column-gap: 4vw; align-content: start; }
-  .clock .sec-head { grid-area: head; } .clock__ctrl { grid-area: ctrl; } .days { grid-area: days; flex-wrap: wrap; }
-  .dial12 { grid-area: dial; align-self: center; } .hf-result { grid-area: res; } .hf-cover { grid-area: cov; } .clock__nowbtn { grid-area: now; justify-self: start; }
+/* ---------- 9 · الساعة — زي الموقع القديم بالظبط + سويتش الفرعين ----------
+   حاجة واحدة بس: شريط بيتملي على محيط الدايرة كل ما الفترة تعدّي، والفترة الحالية
+   والباقي منها في النص. فسفوري للرجالة، ذهبي للسيدات، ورمادي لو الفرع مقفول. */
+.clock {
+  --acc: #9A9B91; --acc-glow: rgba(189, 247, 59, 0.55);
+  position: relative; overflow: clip; background: var(--paper); color: var(--ink);
+  padding: 80px 0 clamp(64px, 10vw, 104px);
 }
+.clock::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(46% 30% at 50% 66%, var(--acc-glow), transparent 72%);
+  opacity: 0.38; transition: opacity 0.8s var(--cz), background 0.8s var(--cz);
+}
+.clock.shut::before { opacity: 0.12; }
+.clock .sec-head { position: relative; justify-items: center; text-align: center; }
+.clock .sec-head .mono { color: #5d5f64; }
+.clock .sec-head h2 { max-width: 13ch; }
+
+/* السويتش: التراك غامق والزرار الفسفوري بيتزحلق للفرع المختار. النقطة = الفرع ده فاتح دلوقتي */
+.brswitch {
+  position: relative; isolation: isolate; display: grid; grid-template-columns: 1fr 1fr;
+  width: min(calc(100% - 2 * var(--gx)), 420px); margin: 30px auto 0; padding: 5px;
+  border-radius: 999px; background: var(--ink); box-shadow: 0 14px 34px -14px rgba(23, 24, 28, 0.45);
+  touch-action: pan-y;
+}
+.brswitch__thumb {
+  position: absolute; z-index: -1; top: 5px; bottom: 5px; inset-inline-start: 5px; width: calc(50% - 5px);
+  border-radius: 999px; background: var(--lime);
+  box-shadow: 0 0 0 1px var(--lime-hot), 0 0 20px var(--lime-glow), 0 0 44px var(--lime-haze);
+  transition: transform 0.6s var(--czio);
+}
+.brswitch[data-on="b2"] .brswitch__thumb { transform: translateX(-100%); }
+.brswitch button {
+  min-height: 54px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border-radius: 999px; font-size: 15.5px; font-weight: 800; color: rgba(243, 241, 235, 0.74);
+  transition: color 0.45s var(--cz); -webkit-tap-highlight-color: transparent;
+}
+.brswitch button .lat { font-weight: 600; font-size: 13px; opacity: 0.66; }
+.brswitch button[aria-checked="true"] { color: var(--ink); }
+.brswitch button[aria-checked="true"] .lat { opacity: 0.8; }
+.brswitch__dot { width: 7px; height: 7px; border-radius: 50%; background: #5d5f64; flex: none; }
+.brswitch button.is-open .brswitch__dot { background: var(--lime-hot); box-shadow: 0 0 8px var(--lime), 0 0 16px var(--lime-glow); }
+.brswitch button[aria-checked="true"] .brswitch__dot { background: var(--ink); box-shadow: none; }
+.brswitch button[aria-checked="true"]:not(.is-open) .brswitch__dot { background: rgba(23, 24, 28, 0.3); }
+
+.ring-wrap { position: relative; z-index: 1; display: grid; justify-items: center; gap: 22px; margin-top: 38px; padding-inline: var(--gx); }
+.ring { position: relative; width: clamp(244px, 68vw, 320px); aspect-ratio: 1; touch-action: pan-y; }
+.ring > svg { width: 100%; height: 100%; overflow: visible; }
+.ring-rot { transform: rotate(-90deg); transform-origin: 140px 140px; }
+.ring circle { fill: none; }
+.ring-track { stroke: #E2DFD6; stroke-width: 12; }
+/* الشريط اللي بيتملي */
+.ring-fg {
+  stroke: var(--acc); stroke-width: 12; stroke-linecap: round;
+  stroke-dasharray: 753.98; stroke-dashoffset: 753.98;      /* 2πr عند r=120 */
+  transition: stroke-dashoffset 0.9s linear, stroke 0.6s var(--cz);
+  filter: drop-shadow(0 0 8px var(--acc)) drop-shadow(0 0 22px var(--acc-glow));
+}
+.ring circle.ring-hub { fill: var(--ink); stroke: none; }
+/* رأس الشريط — نقطة بتنبض كل ثانية عشان يبان إنه ماشي */
+.ring circle.ring-head {
+  fill: var(--acc); stroke: var(--paper); stroke-width: 3;
+  filter: drop-shadow(0 0 12px var(--acc));
+  transition: cx 0.9s linear, cy 0.9s linear, fill 0.6s var(--cz);
+  animation: beat 1s steps(1, end) infinite;
+}
+@keyframes beat { 0%, 55% { r: 7; } 56%, 100% { r: 9.5; } }
+.clock.shut .ring-head { opacity: 0; animation: none; }
+/* وقت تبديل الفرع الشريط بيتملي من الأول بـGSAP — من غير ترانزيشن الثانية */
+.clock.is-switch .ring-fg { transition: stroke 0.6s var(--cz); }
+.clock.is-switch .ring-head { transition: fill 0.6s var(--cz); }
+.ring-c { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 9px; text-align: center; padding: 20%; }
+.ring-c b { font-size: clamp(30px, 8.4vw, 40px); font-weight: 900; letter-spacing: -1.3px; line-height: 1; color: var(--paper); }
+.ring-cd {
+  font-family: var(--f-lat); font-weight: 600; font-size: clamp(25px, 7vw, 32px); letter-spacing: -0.01em; font-variant-numeric: tabular-nums;
+  line-height: 1; color: var(--acc); direction: ltr; text-shadow: 0 0 16px var(--acc-glow);
+}
+.ring-cd i { display: inline-block; width: 0.64em; text-align: center; font-style: normal; }
+.ring-cd .c { display: inline-block; width: 0.28em; text-align: center; transform: translateY(-0.06em); }
+.clock.shut .ring-c b { font-size: clamp(25px, 6.8vw, 32px); color: #B9BAB1; }
+/* الفترة الجاية — تحت الدايرة */
+.ring-note { color: #6E6F67; font-weight: 700; font-size: clamp(15px, 4vw, 17px); text-align: center; max-width: 32ch; }
+.ring-note b { color: var(--ink); }
+.ring-addr { margin-top: -12px; color: #8a8b84; font-size: 14px; font-weight: 600; text-align: center; }
 
 /* ---------- 10 · الباقات (ورقي) ---------- */
 .plans { background: var(--paper); color: var(--ink); padding: 80px 0; }
@@ -442,3 +522,23 @@ html.motion-off .manifesto__text .w { opacity: 1 !important; filter: none !impor
 html.motion-off .bcard__media { --rc: 0 !important; }
 
 main { overflow-x: clip; }
+
+/* ---------- النور: الفسفوري منوّر ومليان طاقة في كل حتة ---------- */
+.dock__join { box-shadow: 0 0 0 1px var(--lime-hot) inset, 0 0 18px var(--lime-glow), 0 0 40px var(--lime-haze); }
+.loader__bar { box-shadow: 0 0 12px var(--lime), 0 0 26px var(--lime-glow); }
+.loader__em .em-lime { filter: drop-shadow(0 0 18px var(--lime-glow)); }
+.sec-head .mono::before { height: 2px; border-radius: 2px; box-shadow: 0 0 8px var(--lime-glow); }
+.now__item.b2 .n, .bcard--b2 .bcard__n, .wa-sheet__opts .b2 .n, .ppl__row .dot, .banks__line b,
+.bcard__vip b, .pin--b2 .pin__tag b, .family__copy .mono, .vip__word { text-shadow: 0 0 14px var(--lime-glow), 0 0 34px var(--lime-haze); }
+.now__item.is-open .st i { box-shadow: 0 0 8px var(--lime), 0 0 16px var(--lime-glow); }
+.now__item.is-open { box-shadow: inset 0 0 0 1px rgba(189, 247, 59, 0.5), 0 0 26px -6px var(--lime-haze); }
+.route { filter: drop-shadow(0 0 5px var(--lime-glow)) drop-shadow(0 0 14px var(--lime-haze)); }
+.walker { filter: drop-shadow(0 0 8px var(--lime-glow)); }
+.pin--b2 .pin__dot { box-shadow: 0 0 10px var(--lime), 0 0 26px var(--lime-glow); }
+.vip-chip { box-shadow: 0 0 0 1px var(--lime-hot) inset, 0 0 22px var(--lime-glow), 0 0 48px var(--lime-haze); }
+.newtag { box-shadow: inset 0 0 0 1px var(--lime), 0 0 14px var(--lime-haze); text-shadow: 0 0 10px var(--lime-glow); }
+.acc__btn[aria-expanded="true"] .acc__plus { box-shadow: 0 0 16px var(--lime-glow); }
+.member__list .ico { filter: drop-shadow(0 0 6px var(--lime-glow)); }
+.mring .fg { filter: drop-shadow(0 0 6px var(--lime-glow)) drop-shadow(0 0 16px var(--lime-haze)); }
+.wa-sheet__opts .ico { filter: drop-shadow(0 0 6px var(--lime-glow)); }
+.plans .btn--lime, .clock .btn--lime { box-shadow: 0 0 0 1px rgba(94, 132, 16, 0.25), 0 10px 26px -12px rgba(94, 132, 16, 0.55); }

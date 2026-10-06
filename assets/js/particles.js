@@ -5,7 +5,7 @@
    ========================================================================== */
 window.CZParticles = (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const COLORS = ['#A8DC42', '#F3F1EB'];
+  const COLORS = ['#BDF73B', '#F3F1EB'];
   const tilt = { x: 0, y: 0 }; // ميل الموبايل (-1..1) — كل نقطة بتتحرك بعمق مختلف
 
   function init(canvas, src) {

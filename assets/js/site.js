@@ -106,8 +106,11 @@
   function heroIntro() {
     gsap.to('.nav', { opacity: 1, duration: 0.9, delay: 0.6 });
     const tl = gsap.timeline();
-    tl.fromTo('[data-hero-building]', { yPercent: 18, opacity: 0, scale: 0.92 }, { yPercent: 0, opacity: 1, scale: 1, duration: 2.2, ease: 'cz' }, 0)
-      .fromTo('.hero__big .hbi', { yPercent: 110 }, { yPercent: 0, duration: 1.5, stagger: 0.07, ease: 'cz' }, 0.2);
+    tl.fromTo('.hero__sky img', { opacity: 0, scale: 1.12 }, { opacity: 1, scale: 1, duration: 2.6, ease: 'cz' }, 0)
+      .fromTo('[data-hero-building]', { yPercent: 14, opacity: 0, scale: 0.94 }, { yPercent: 0, opacity: 1, scale: 1, duration: 2.2, ease: 'cz' }, 0.05)
+      .fromTo('.hero__big .hbi', { yPercent: 110 }, { yPercent: 0, duration: 1.5, stagger: 0.07, ease: 'cz' }, 0.2)
+      .fromTo('.hero__gym i', { scaleX: 0 }, { scaleX: 1, duration: 1.2, ease: 'czInOut' }, 0.7)
+      .fromTo('.hero__gym span', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 1.2, ease: 'cz' }, 0.75);
     if (heroTitle) tl.fromTo(heroTitle.lines, { yPercent: 110 }, { yPercent: 0, duration: 1.2, stagger: 0.1 }, 0.55);
     tl.fromTo('[data-hero-fade]', { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 1.1, stagger: 0.09 }, 0.85)
       .fromTo('[data-tilt-btn]', { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.8 }, 1.4);
@@ -118,11 +121,13 @@
     gsap.set('[data-hero-fade]', { opacity: 0 });
     if (heroTitle) gsap.set(heroTitle.lines, { yPercent: 110 });
     gsap.set('.hero__big .hbi', { yPercent: 110 });
-    gsap.set('[data-hero-building]', { opacity: 0 });
+    gsap.set(['[data-hero-building]', '.hero__sky img', '.hero__gym span'], { opacity: 0 });
+    gsap.set('.hero__gym i', { scaleX: 0 });
     gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.6 } })
-      .to('[data-hero-building]', { scale: 1.22, yPercent: 16, ease: 'none' }, 0)
+      .to('[data-hero-building]', { scale: 1.2, yPercent: 8, ease: 'none' }, 0)
       .to('.hero__big .hb', { x: (i) => (i - 2) * window.innerWidth * 0.13, yPercent: -40, opacity: 0.08, ease: 'none' }, 0)
-      .to('[data-hero-sky]', { opacity: 0.3, ease: 'none' }, 0)
+      .to('.hero__gym', { opacity: 0, yPercent: -60, ease: 'none', duration: 0.5 }, 0)
+      .to('[data-hero-sky]', { yPercent: 14, opacity: 0.35, ease: 'none' }, 0)
       .to('.hero__meta', { opacity: 0, ease: 'none', duration: 0.4 }, 0)
       .to('.hero__copy', { yPercent: -12, opacity: 0, ease: 'none', duration: 0.5 }, 0.5);
   }
@@ -319,28 +324,22 @@
     gsap.fromTo($$('.acc__plus', list), { scale: 0, rotation: -90 }, { scale: 1, rotation: 0, duration: 0.9, stagger: 0.08, delay: 0.3, scrollTrigger: { trigger: list, start: 'top 88%', once: true } });
   }
 
-  /* ---------- 9 · الساعة: الدايرتين بيترسموا، والأرقام بتلف لمكانها، والعقرب بيلف للساعة دلوقتي ---------- */
+  /* ---------- 9 · الساعة: السويتش بيطلع، والدايرة بتكبر والشريط بيتملي لمكانه ---------- */
   function clock() {
-    const d = $('[data-dial]');
-    if (!d) return;
-    const tr = $$('.d12__track', d);
-    gsap.set('[data-ticks]', { rotation: -60, svgOrigin: '0 0', opacity: 0 });
-    gsap.set([$('.dial12__b2', d), $('.d12__b1lbl', d), $$('.dial12__addr li', d)].flat(), { opacity: 0 });
+    const sec = $('[data-clock]');
+    if (!sec) return;
+    const sw = $('[data-brswitch]', sec), ring = $('[data-ring]', sec);
+    gsap.set([sw, ring, '.ring-note', '.ring-addr'], { opacity: 0 });
     ScrollTrigger.create({
-      trigger: d, start: 'top 72%', once: true,
+      trigger: ring, start: 'top 80%', once: true,
       onEnter: () => {
-        const tl = gsap.timeline();
-        if (window.DrawSVGPlugin) tl.fromTo(tr, { drawSVG: '50% 50%' }, { drawSVG: '0% 100%', duration: 1.4, stagger: 0.15, ease: 'czInOut' }, 0);
-        tl.to('[data-ticks]', { rotation: 0, opacity: 1, duration: 1.8, ease: 'cz' }, 0.1)
-          .fromTo($('.dial12__b2', d), { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9 }, 0.2)
-          .fromTo($('.d12__b1lbl', d), { opacity: 0 }, { opacity: 1, duration: 0.9 }, 0.7)
-          .fromTo($('.d12__center', d), { scale: 0.85, opacity: 0 }, { scale: 1, opacity: 1, duration: 1 }, 0.6)
-          .fromTo($$('.dial12__addr li', d), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.9, stagger: 0.12 }, 0.9)
-          .add(() => { if (window.CZDial) CZDial.show(); }, 0.35);
+        gsap.timeline()
+          .fromTo(sw, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.9 }, 0)
+          .fromTo(ring, { opacity: 0, scale: 0.86, rotation: -12 }, { opacity: 1, scale: 1, rotation: 0, duration: 1.4 }, 0.1)
+          .fromTo(['.ring-note', '.ring-addr'], { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.9, stagger: 0.1 }, 0.6)
+          .add(() => { if (window.CZRing) CZRing.show(); }, 0.3);
       },
     });
-    gsap.fromTo('[data-days] button', { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.8, stagger: 0.04, scrollTrigger: { trigger: '[data-days]', start: 'top 94%', once: true } });
-    gsap.fromTo('.clock__ctrl .seg', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, stagger: 0.08, scrollTrigger: { trigger: '.clock__ctrl', start: 'top 94%', once: true } });
   }
 
   /* ---------- 10 · الباقات: الكروت بتدخل من الجنب والنقط بتتملى والرقم بيعدّ ---------- */
@@ -445,7 +444,7 @@
     if (!/[?&]tweak/.test(location.search)) return;
     const cs = getComputedStyle(root);
     const fields = [
-      { label: 'Accent', type: 'color', v: cs.getPropertyValue('--lime').trim() || '#A8DC42', apply: (v) => root.style.setProperty('--lime', v), css: (v) => `--lime: ${v};` },
+      { label: 'Accent', type: 'color', v: cs.getPropertyValue('--lime').trim() || '#BDF73B', apply: (v) => root.style.setProperty('--lime', v), css: (v) => `--lime: ${v};` },
       { label: 'Gutter (px)', min: 12, max: 40, step: 1, v: 20, apply: (v) => root.style.setProperty('--gx', `${v}px`), css: (v) => `--gx: ${v}px;` },
       { label: 'Grain', min: 0, max: 0.2, step: 0.01, v: 0.07, apply: (v) => root.style.setProperty('--grain', v), css: (v) => `--grain: ${v};` },
       { label: 'Motion speed', min: 0.25, max: 1.75, step: 0.05, v: 1, apply: (v) => gsap.globalTimeline.timeScale(v), css: () => '' },

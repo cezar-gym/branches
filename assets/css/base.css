@@ -31,8 +31,11 @@
   --paper-2: #E7E4DB;
   --paper-dim: rgba(243, 241, 235, 0.66);
   --muted: #8E9095;
-  --lime: #A8DC42;
-  --lime-deep: #5E8410;
+  --lime: #BDF73B;                              /* فسفوري منوّر — زي نور اللافتات بالليل */
+  --lime-hot: #D6FF5C;                          /* أعلى درجة — للهوفر والنقط الحيّة */
+  --lime-deep: #5E8410;                         /* الفسفوري كنص على الورقي */
+  --lime-glow: rgba(189, 247, 59, 0.55);
+  --lime-haze: rgba(189, 247, 59, 0.22);
 
   --f-ar: 'Tajawal', system-ui, sans-serif;
   --f-lat: 'Clash Display', 'Tajawal', system-ui, sans-serif;
@@ -102,7 +105,8 @@ html { scrollbar-color: #3a3b40 var(--bg); scrollbar-width: thin; }
 .btn:hover::before, .btn:focus-visible::before { transform: translateY(0); }
 .btn:hover, .btn:focus-visible { color: var(--ht); }
 .btn .ico { width: 20px; height: 20px; }
-.btn--lime { --b: var(--lime); --t: var(--ink); --hb: var(--paper); --ht: var(--ink); }
+.btn--lime { --b: var(--lime); --t: var(--ink); --hb: var(--lime-hot); --ht: var(--ink); box-shadow: 0 0 0 1px rgba(214, 255, 92, 0.5), 0 0 22px var(--lime-haze), 0 10px 34px -10px var(--lime-glow); transition: color 0.5s var(--cz), box-shadow 0.5s var(--cz); }
+.btn--lime:hover, .btn--lime:focus-visible { box-shadow: 0 0 0 1px var(--lime-hot), 0 0 30px var(--lime-glow), 0 12px 40px -8px var(--lime-glow); }
 .btn--ghost { --b: transparent; --t: var(--paper); --hb: var(--paper); --ht: var(--ink); box-shadow: inset 0 0 0 1.5px rgba(243, 241, 235, 0.32); }
 .btn--ink { --b: var(--ink); --t: var(--paper); --hb: var(--lime); --ht: var(--ink); }
 .btn--sm { min-height: 44px; padding: 0 20px; font-size: 15px; }
@@ -117,7 +121,7 @@ html { scrollbar-color: #3a3b40 var(--bg); scrollbar-width: thin; }
 /* ---------- الحالة الحيّة ---------- */
 .live { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; color: var(--paper); white-space: nowrap; }
 .live__dot { position: relative; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
-.live.is-open .live__dot { background: var(--lime); }
+.live.is-open .live__dot { background: var(--lime-hot); box-shadow: 0 0 8px var(--lime), 0 0 18px var(--lime-glow); }
 .live.is-open .live__dot::after {
   content: ''; position: absolute; inset: -5px; border-radius: 50%; border: 1px solid var(--lime);
   animation: ping 2.4s var(--cz) infinite;
@@ -135,7 +139,7 @@ html { scrollbar-color: #3a3b40 var(--bg); scrollbar-width: thin; }
 .nav.is-hidden { transform: translateY(-110%); }
 html.intro .nav { opacity: 0; }
 .brand { display: inline-flex; align-items: center; gap: 12px; }
-.brand img { width: 46px; height: auto; }
+.brand img { width: 46px; height: auto; filter: drop-shadow(0 0 7px var(--lime-haze)); }
 .brand__word { font-family: var(--f-lat); font-weight: 600; font-size: 21px; letter-spacing: 0.02em; direction: ltr; }
 .brand__word b { font-weight: 600; color: var(--lime); }
 .nav__links { display: flex; gap: clamp(18px, 2.4vw, 40px); font-size: 15px; font-weight: 700; }

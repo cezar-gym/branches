@@ -15,10 +15,10 @@
 <link rel="icon" href="assets/img/emblem.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/clash-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/tajawal-800-ar.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/img/hero-cut@s.webp" as="image" media="(max-width: 760px)">
-<link rel="preload" href="assets/img/hero-cut.webp" as="image" media="(min-width: 761px)">
-<link rel="stylesheet" href="assets/css/base.css?v=21">
-<link rel="stylesheet" href="assets/css/site.css?v=21">
+<link rel="preload" href="assets/img/hero-night@s.webp" as="image" media="(max-width: 999px)">
+<link rel="preload" href="assets/img/hero-night.webp" as="image" media="(min-width: 1000px)">
+<link rel="stylesheet" href="assets/css/base.css?v=22">
+<link rel="stylesheet" href="assets/css/site.css?v=22">
 <noscript><style>html.intro .loader{display:none}html.intro body{overflow:auto}[data-b],[data-reveal]{opacity:1!important}</style></noscript>
 <script>
   try { if (sessionStorage.getItem('cz-intro') || matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.remove('intro'); } catch (e) { document.documentElement.classList.remove('intro'); }
@@ -70,26 +70,36 @@
 
 <main>
 
-  <!-- 1 · الهيرو: المبنى قدّام وCEZAR وراه -->
+  <!-- 1 · الهيرو: سما المغرب ← CEZAR GYM ← المبنى بالليل على أرض مبلولة ← الكلام -->
   <section class="hero" id="top" aria-label="سيزر جيم — فرعين">
-    <div class="hero__sky" data-hero-sky></div>
+    <div class="hero__sky" aria-hidden="true" data-hero-sky>
+      <picture>
+        <source media="(min-width: 1000px)" srcset="assets/img/hero-sky-wide.webp">
+        <img src="assets/img/hero-sky@s.webp" srcset="assets/img/hero-sky@s.webp 640w, assets/img/hero-sky.webp 1080w" sizes="100vw" width="1080" height="2300" alt="">
+      </picture>
+    </div>
+    <i class="hero__ground" aria-hidden="true"></i>
     <div class="hero__meta mono">
       <span data-hero-fade>Two branches</span>
+      <button class="tiltbtn" type="button" data-tilt-btn hidden aria-label="فعّل حركة الموبايل" title="فعّل حركة الموبايل"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="4" width="8" height="16" rx="2"/><path d="M4.6 9a6 6 0 0 0 0 6M19.4 9a6 6 0 0 1 0 6"/></svg></button>
       <span data-hero-fade>Beni Suef</span>
     </div>
-    <div class="hero__stage" data-hero-stage>
-      <p class="hero__big" aria-hidden="true" data-hero-word><span class="hb"><span class="hbi">C</span></span><span class="hb"><span class="hbi">E</span></span><span class="hb"><span class="hbi">Z</span></span><span class="hb"><span class="hbi">A</span></span><span class="hb"><span class="hbi">R</span></span></p>
-      <img class="hero__building" src="assets/img/hero-cut@s.webp" srcset="assets/img/hero-cut@s.webp 1100w, assets/img/hero-cut.webp 2000w" sizes="(max-width: 760px) 100vw, 64vw" width="1100" height="745" alt="رسم لمبنى فرع سيزر جيم الجديد بلافتتين CEZAR GYM" data-hero-building fetchpriority="high">
+    <div class="hero__word" aria-hidden="true" data-hero-word>
+      <p class="hero__big"><span class="hb"><span class="hbi">C</span></span><span class="hb"><span class="hbi">E</span></span><span class="hb"><span class="hbi">Z</span></span><span class="hb"><span class="hbi">A</span></span><span class="hb"><span class="hbi">R</span></span></p>
+      <p class="hero__gym" data-hero-gym><i></i><span>GYM</span><i></i></p>
     </div>
+    <div class="hero__scene" data-hero-scene>
+      <img class="hero__building" src="assets/img/hero-night@s.webp" srcset="assets/img/hero-night@s.webp 640w, assets/img/hero-night.webp 852w" sizes="(min-width: 1000px) 54vw, 100vw" width="852" height="1250" alt="مبنى سيزر جيم بالليل بلافتات CEZAR GYM ونور فسفوري، على أرض مبلولة" data-hero-building fetchpriority="high">
+    </div>
+    <i class="hero__shade" aria-hidden="true"></i>
     <div class="hero__copy" data-hero-copy>
-      <h1 class="hero__title" data-hero-lines>سيزر بقى فرعين.</h1>
+      <h1 class="hero__title" data-hero-lines>سيزر بقى فرعين<span class="hero__dot">.</span></h1>
       <p class="hero__sub" data-hero-fade>في نفس الحتة، ومواعيدهم مكمّلة بعض — فدايمًا فيه فرع فاتحلك.</p>
       <div class="hero__ctas" data-hero-fade>
         <a class="btn btn--lime" data-wa="أهلًا، عايز أعرف تفاصيل الاشتراك في سيزر جيم" href="https://wa.me/201097419761" target="_blank" rel="noopener">
           <svg class="ico" aria-hidden="true"><use href="assets/icons/sprite.svg#i-brand-whatsapp"/></svg>اشترك على واتساب</a>
         <a class="btn btn--ghost" href="#clock">مين فاتح دلوقتي؟</a>
       </div>
-      <button class="tiltbtn" type="button" data-tilt-btn hidden>فعّل حركة الموبايل</button>
     </div>
   </section>
 
@@ -204,50 +214,36 @@
     </div>
   </section>
 
-  <!-- 9 · الساعة: الفرع التاني دايرة كبيرة، والأول دايرة جوّاها -->
+  <!-- 9 · الساعة — زي الموقع القديم بالظبط: شريط بيتملي مع الفترة الشغّالة، وسويتش بيبدّل بين الفرعين -->
   <section class="clock" id="clock" aria-label="المواعيد" data-clock>
     <header class="sec-head">
       <p class="mono">Always one open</p>
       <h2 data-lines>في أي ساعة، فيه فرع فاتحلك.</h2>
-      <p>حرّك العقرب بصباعك — وشوف أنهي فرع فاتح.</p>
     </header>
-    <div class="clock__ctrl">
-      <div class="seg" role="group" aria-label="رجالة ولا سيدات" data-hf-g>
-        <button type="button" data-g="men" aria-pressed="true">رجالة</button>
-        <button type="button" data-g="women" aria-pressed="false">سيدات</button>
-      </div>
-      <div class="seg" role="group" aria-label="قبل الضهر ولا بعده" data-hf-half>
-        <button type="button" data-half="0" aria-pressed="false">ص</button>
-        <button type="button" data-half="1" aria-pressed="true">م</button>
-      </div>
+    <div class="brswitch" role="radiogroup" aria-label="أنهي فرع" data-brswitch data-on="b2">
+      <i class="brswitch__thumb" aria-hidden="true"></i>
+      <button type="button" role="radio" aria-checked="false" tabindex="-1" data-br="b1"><i class="brswitch__dot" aria-hidden="true"></i><span class="lat">01</span>الفرع الأول</button>
+      <button type="button" role="radio" aria-checked="true" data-br="b2"><i class="brswitch__dot" aria-hidden="true"></i><span class="lat">02</span>الفرع الجديد</button>
     </div>
-    <div class="days" role="group" aria-label="اختار اليوم" data-days></div>
-    <div class="dial12" data-dial>
-      <p class="dial12__b2">سيزر جيم — الفرع التاني</p>
-      <div class="dial12__face">
-        <svg viewBox="-300 -300 600 600" data-dial-svg role="slider" aria-label="الساعة" aria-valuemin="0" aria-valuemax="1439" aria-valuenow="0" tabindex="0">
-          <circle class="d12__track d12__track--b2" r="232"></circle>
-          <circle class="d12__track d12__track--b1" r="166"></circle>
-          <g data-arcs></g>
-          <g data-ticks></g>
-          <text class="d12__b1lbl" x="0" y="-92" text-anchor="middle">الفرع الأول</text>
-          <circle class="d12__now" r="7" data-now-dot></circle>
-          <g data-hand>
-            <line class="d12__hand" x1="0" y1="-132" x2="0" y2="-214"></line>
-            <circle class="d12__knob" cx="0" cy="-232" r="20"></circle>
-            <circle class="d12__hit" cx="0" cy="-232" r="44"></circle>
+    <div class="ring-wrap">
+      <div class="ring" data-ring>
+        <svg viewBox="0 0 280 280" aria-hidden="true">
+          <!-- اللفة على الشريط بس. النقطة بره اللفة عشان إحداثياتها تتحسب في نفس اتجاه اللي بنشوفه -->
+          <g class="ring-rot">
+            <circle class="ring-track" cx="140" cy="140" r="120"/>
+            <circle class="ring-fg" cx="140" cy="140" r="120" data-ring-fg/>
           </g>
-                  </svg>
-        <div class="d12__center"><span class="lat" data-dial-time>--:--</span><span data-dial-ampm>م</span></div>
+          <circle class="ring-hub" cx="140" cy="140" r="96"/>
+          <circle class="ring-head" r="7" cx="140" cy="20" data-ring-head/>
+        </svg>
+        <div class="ring-c">
+          <b data-ring-group>—</b>
+          <span class="ring-cd" data-ring-cd>--:--:--</span>
+        </div>
       </div>
-      <ul class="dial12__addr">
-        <li class="a2" data-addr="b2"></li>
-        <li class="a1" data-addr="b1"></li>
-      </ul>
+      <p class="ring-note" data-ring-note>&nbsp;</p>
+      <p class="ring-addr" data-ring-addr></p>
     </div>
-    <div class="hf-result" data-hf-result aria-live="polite"></div>
-    <p class="hf-cover" data-hf-cover></p>
-    <button class="btn btn--ghost btn--sm clock__nowbtn" type="button" data-hf-now>رجّع العقرب للساعة دلوقتي</button>
   </section>
 
   <!-- 10 · الباقات -->
@@ -378,10 +374,10 @@
 <script src="assets/vendor/CustomEase.min.js"></script>
 <script src="assets/vendor/DrawSVGPlugin.min.js"></script>
 <script src="assets/vendor/lenis.min.js"></script>
-<script src="assets/js/data.js?v=21"></script>
-<script src="assets/js/hours.js?v=21"></script>
-<script src="assets/js/render.js?v=21"></script>
-<script src="assets/js/particles.js?v=21"></script>
-<script src="assets/js/site.js?v=21"></script>
+<script src="assets/js/data.js?v=22"></script>
+<script src="assets/js/hours.js?v=22"></script>
+<script src="assets/js/render.js?v=22"></script>
+<script src="assets/js/particles.js?v=22"></script>
+<script src="assets/js/site.js?v=22"></script>
 </body>
 </html>

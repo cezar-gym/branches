@@ -101,27 +101,6 @@
     });
   });
 
-  /* ---------- مواعيد «اليوم بالتقويم» لكل فرع (بما فيها كمالة الفجر من امبارح) ---------- */
-  const daySegs = (br, d) => {
-    const S = segsOf(br);
-    const prev = (S[String((d + 6) % 7)] || []).filter((s) => s.to > 1440).map((s) => ({ g: s.g, from: 0, to: s.to - 1440 }));
-    const cur = (S[String(d)] || []).map((s) => ({ g: s.g, from: s.from, to: Math.min(s.to, 1440), end: s.to }));
-    return prev.concat(cur).filter((s) => s.to > s.from);
-  };
-  const segAt = (br, d, m) => daySegs(br, d).find((s) => m >= s.from && m < s.to);
-  const nextFor = (br, d, m, g) => {
-    const today = daySegs(br, d).filter((s) => s.g === g && s.from > m).sort((a, b) => a.from - b.from)[0];
-    if (today) return hm(today.from);
-    const tm = daySegs(br, (d + 1) % 7).filter((s) => s.g === g).sort((a, b) => a.from - b.from)[0];
-    return tm ? `بكرة ${hm(tm.from)}` : '';
-  };
-  const coverage = (brs, d, g) => {
-    const iv = brs.flatMap((br) => daySegs(br, d).filter((s) => s.g === g)).sort((a, b) => a.from - b.from);
-    let tot = 0, cs = -1, ce = -1;
-    iv.forEach((s) => { if (s.from > ce) { if (ce > cs) tot += ce - cs; cs = s.from; ce = s.to; } else ce = Math.max(ce, s.to); });
-    if (ce > cs) tot += ce - cs;
-    return tot;
-  };
   const todaySlots = (id) => {
     const segs = segsOf(id)[String(new Date().getDay())] || [];
     return segs.map((s) => `${GN[s.g]} ${hm(s.from)}–${hm(s.to)}`).join(' · ') || 'مقفول النهارده';
@@ -414,181 +393,113 @@
     acc(btn, opening); buzz(5);
   }));
 
-  /* ---------- «مين فاتح؟» — ساعة 12 ساعة:
-     الدايرة الكبيرة = الفرع التاني (فسفوري)، والصغيرة جوّاها = الفرع الأول (أبيض).
-     العقرب بيتسحب بالصباع، ولما يعدّي 12 بيقلب ص/م (وبعد نص الليل اليوم اللي بعده). ---------- */
-  const dial = $('[data-dial]');
-  if (dial) {
-    const svg = $('[data-dial-svg]', dial), arcsG = $('[data-arcs]', svg), ticksG = $('[data-ticks]', svg);
-    const hand = $('[data-hand]', svg), hit = $('.d12__hit', svg), nowDot = $('[data-now-dot]', svg);
-    const R = { b2: 232, b1: 166 };
-    const pt = (deg, r) => { const a = (deg - 90) * Math.PI / 180; return [Math.cos(a) * r, Math.sin(a) * r]; };
-    const f2 = (v) => v.toFixed(2);
-    let tk = '';
-    for (let h = 0; h < 12; h++) {
-      const deg = h * 30;
-      [[208, 256], [142, 190]].forEach(([r0, r1]) => { const [x0, y0] = pt(deg, r0), [x1, y1] = pt(deg, r1); tk += `<line class="d12__tick" x1="${f2(x0)}" y1="${f2(y0)}" x2="${f2(x1)}" y2="${f2(y1)}"/>`; });
-      const [nx, ny] = pt(deg, 281);
-      tk += `<text class="d12__num${h % 3 === 0 ? ' is-major' : ''}" x="${f2(nx)}" y="${f2(ny + 9)}" text-anchor="middle">${h || 12}</text>`;
-    }
-    ticksG.innerHTML = tk;
-    const arcD = (d0, d1, r) => {
-      d1 = Math.min(d1, d0 + 359.95);
-      const [x0, y0] = pt(d0, r), [x1, y1] = pt(d1, r);
-      return `M${f2(x0)} ${f2(y0)} A${r} ${r} 0 ${d1 - d0 > 180 ? 1 : 0} 1 ${f2(x1)} ${f2(y1)}`;
+  /* ---------- الساعة — زي الموقع القديم بالظبط ----------
+     شريط بيتملي على محيط الدايرة كل ما الفترة الشغّالة تعدّي، ونوع الفترة والباقي منها
+     في النص، والفترة الجاية تحت. السويتش فوقها بيبدّل بين الفرعين (أو اسحب الدايرة يمين/شمال).
+     الفترات المتصلة (زي رجالة من 9 بالليل لـ7 الصبح وبعدها على طول من 7 لـ4) بتتحسب فترة واحدة. */
+  const ringSec = $('[data-clock]');
+  if (ringSec) {
+    const fg = $('[data-ring-fg]', ringSec), head = $('[data-ring-head]', ringSec), ringEl = $('[data-ring]', ringSec);
+    const gEl = $('[data-ring-group]', ringSec), cd = $('[data-ring-cd]', ringSec);
+    const note = $('[data-ring-note]', ringSec), addr = $('[data-ring-addr]', ringSec), sw = $('[data-brswitch]', ringSec);
+    const RAD = 120, CIRC = 2 * Math.PI * RAD;
+    const ACC = { men: '#BDF73B', women: '#E8B14C' };          /* فسفوري للرجالة، ذهبي للسيدات */
+    const GLOW = { men: 'rgba(189,247,59,.55)', women: 'rgba(232,177,76,.5)' };
+    const statusOf = (id) => H.status(segsOf(id), new Date());
+    /* أرقام Clash مش ثابتة العرض — كل رقم في خانة ثابتة عشان العدّاد ميرقصش كل ثانية */
+    const digits = (str) => str.split('').map((c) => (c === ':' ? '<span class="c">:</span>' : `<i>${c}</i>`)).join('');
+    let br = (statusOf('b2').open || !statusOf('b1').open) ? 'b2' : 'b1';
+    let target = 0, tweening = false, shown = !anim;
+    const view = { f: 0 };
+    fg.style.strokeDasharray = CIRC;
+    /* رأس الشريط بيمشي مع عقارب الساعة كل ما الشريط يتملي */
+    const draw = (f) => {
+      const a = f * Math.PI * 2;
+      fg.style.strokeDashoffset = CIRC * (1 - f);
+      head.setAttribute('cx', (140 + RAD * Math.sin(a)).toFixed(2));
+      head.setAttribute('cy', (140 - RAD * Math.cos(a)).toFixed(2));
     };
-    const order = [6, 0, 1, 2, 3, 4, 5];
-    const now0 = new Date(), today = now0.getDay();
-    const nowMin = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
-    const daysBox = $('[data-days]'), gBox = $('[data-hf-g]'), halfBox = $('[data-hf-half]');
-    const result = $('[data-hf-result]'), cover = $('[data-hf-cover]'), dTime = $('[data-dial-time]'), dAmpm = $('[data-dial-ampm]');
-    daysBox.innerHTML = order.map((d) => `<button type="button" data-day="${d}" aria-pressed="${d === today}">${dayNames[d]}${d === today ? '<span class="t">النهارده</span>' : ''}</button>`).join('');
-    let day = today, g = 'men', at = Math.round(nowMin() / 5) * 5 % 1440, shown = false;
-    const half = () => (at >= 720 ? 1 : 0);
-
-    /* العنوان تحت كل دايرة بلونها */
-    const a2 = $('[data-addr="b2"]', dial), a1 = $('[data-addr="b1"]', dial);
-    if (a2) a2.textContent = `الفرع التاني — ${shortAddr(B.b2)}`;
-    if (a1) a1.textContent = `الفرع الأول — ${shortAddr(B.b1)}`;
-
-    /* العقرب: زاوية مرئية مستمرة (ممكن تعدّي 360 في اللفّة) */
-    const proxy = { d: 0 };
-    const setHand = (deg) => hand.setAttribute('transform', `rotate(${f2(deg)})`);
-    const handNow = (deg) => { if (G) G.killTweensOf(proxy); proxy.d = deg; setHand(deg); };
-    const turnTo = (deg, dur = 0.9) => {
-      if (!anim) { handNow(deg); return; }
-      G.to(proxy, { d: deg, duration: dur, ease: 'cz', overwrite: true, onUpdate: () => setHand(proxy.d) });
-    };
-    const degOf = (m) => (m % 720) / 2;
-    const shortest = (target) => { const cur = ((proxy.d % 360) + 360) % 360; const diff = ((target - cur + 540) % 360) - 180; return proxy.d + diff; };
-
-    function drawArcs(animate) {
-      const h0 = half() * 720;
-      let i = 0;
-      arcsG.innerHTML = ['b2', 'b1'].map((id) => daySegs(id, day).map((s) => {
-        const from = Math.max(s.from, h0), to = Math.min(s.to, h0 + 720);
-        if (to <= from) return '';
-        return `<path class="d12__arc ${id}${s.g === g ? '' : ' other'}" d="${arcD((from - h0) / 2, (to - h0) / 2, R[id])}" pathLength="1" stroke-dasharray="1" stroke-dashoffset="${animate && anim ? 1 : 0}" data-k="${i++}"/>`;
-      }).join('')).join('');
-      if (animate && anim) G.to($$('.d12__arc', arcsG), { attr: { 'stroke-dashoffset': 0 }, duration: 1, stagger: 0.08, ease: 'czInOut' });
-      $$('button', halfBox).forEach((x) => x.setAttribute('aria-pressed', String(+x.dataset.half === half())));
-      $$('button', daysBox).forEach((x) => x.setAttribute('aria-pressed', String(+x.dataset.day === day)));
-      $$('button', gBox).forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.g === g)));
-      const both = coverage(['b1', 'b2'], day, g), one = Math.max(coverage(['b1'], day, g), coverage(['b2'], day, g));
-      const hw = (v) => (v >= 3 && v <= 10 ? 'ساعات' : 'ساعة');
-      const hb = Math.round(both / 60), ho = Math.round(one / 60);
-      cover.innerHTML = `يوم ${dayNames[day]}: ال${GN[g]} يقدروا يتمرنوا <b>${hb}</b> ${hw(hb)} من 24 بالفرعين مع بعض — فرع واحد لوحده أقصاه <b>${ho}</b> ${hw(ho)}.`;
-      update();
-    }
-    let lastRes = '';
-    function update() {
-      const h12 = Math.floor(at / 60) % 12 || 12;
-      dTime.textContent = `${h12}:${pad(at % 60)}`;
-      dAmpm.textContent = half() ? 'مساءً' : 'صباحًا';
-      svg.setAttribute('aria-valuenow', String(at));
-      svg.setAttribute('aria-valuetext', `${dayNames[day]} ${hm(at)}`);
-      const nm = nowMin(), h0 = half() * 720;
-      const showNow = day === new Date().getDay() && nm >= h0 && nm < h0 + 720;
-      if (showNow) { const [x, y] = pt((nm - h0) / 2, 199); nowDot.setAttribute('cx', f2(x)); nowDot.setAttribute('cy', f2(y)); }
-      nowDot.style.opacity = showNow ? 1 : 0;
-      const open = [];
-      const html = ['b2', 'b1'].map((id) => {
-        const b = B[id], s = segAt(id, day, at), isOpen = !!(s && s.g === g);
-        if (isOpen) open.push(id);
-        const nx = nextFor(id, day, at, g);
-        const st = isOpen ? `فاتح ${GL[g]} لحد ${hm(s.end || s.to)}` : s ? `فترة ${GN[s.g]} دلوقتي${nx ? ` — ${GL[g]} من ${nx}` : ''}` : `مقفول${nx ? ` — بيفتح ${GL[g]} ${nx}` : ''}`;
-        return `<div class="hf-br ${id}${isOpen ? ' is-open' : ''}"><div><b><span class="n lat">${b.n}</span> ${b.name}</b><div class="st">${st}</div></div>${isOpen ? `<a href="${b.maps}" target="_blank" rel="noopener">الخريطة</a>` : ''}</div>`;
-      }).join('');
-      if (html !== lastRes) { result.innerHTML = html; lastRes = html; }
-      svg.classList.toggle('b2-open', open.includes('b2'));
-      svg.classList.toggle('b1-open', open.includes('b1'));
-    }
-    const setDay = (d) => { day = (d + 7) % 7; };
-    /* عبور الساعة 12 أثناء السحب */
-    const cross = (dir) => {
-      if (dir > 0) { if (half()) { setDay(day + 1); at -= 720; } else at += 720; }
-      else if (half()) at -= 720; else { setDay(day - 1); at += 720; }
-      buzz(14); drawArcs(true);
-    };
-
-    /* السحب: من الزرار الفسفوري بس (عشان السكرول على الموبايل يفضل شغّال)، والضغط على الدايرة بيودّي العقرب هناك */
-    const angleOf = (e) => {
-      const r = svg.getBoundingClientRect();
-      const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
-      let a = Math.atan2(dx, -dy) * 180 / Math.PI; if (a < 0) a += 360;
-      return { a, dist: Math.hypot(dx, dy) * 600 / r.width };
-    };
-    let dragging = false, lastA = 0, tap = null;
-    hit.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
-    svg.addEventListener('pointerdown', (e) => {
-      if (e.target === hit) {
-        dragging = true; lastA = angleOf(e).a;
-        try { svg.setPointerCapture(e.pointerId); } catch (er) {}
-        dial.classList.add('is-drag'); buzz(6); e.preventDefault();
-        return;
+    function paint() {
+      const t = Date.now(), st = statusOf(br);
+      $$('[data-br]', sw).forEach((b) => b.classList.toggle('is-open', statusOf(b.dataset.br).open));
+      if (st.open) {
+        const seg = st.seg, rest = seg.end - t;
+        target = 1 - rest / (seg.end - seg.start);
+        ringSec.classList.remove('shut');
+        ringSec.style.setProperty('--acc', ACC[seg.g]);
+        ringSec.style.setProperty('--acc-glow', GLOW[seg.g]);
+        gEl.textContent = GN[seg.g];
+        cd.innerHTML = digits(H.hhmm(rest));
+        /* بعد الدمج، الفترة اللي بعدها بالضرورة نوع تاني */
+        const flip = st.next;
+        note.innerHTML = flip ? `بعدها <b>${GN[flip.g]}</b> — ${dayNames[flip.dow]} الساعة <b>${H.clock(flip.start)}</b>` : '';
+      } else {
+        target = 0;
+        ringSec.classList.add('shut');
+        ringSec.style.setProperty('--acc', '#9A9B91');
+        ringSec.style.setProperty('--acc-glow', 'rgba(154,155,145,.35)');
+        gEl.textContent = 'مقفول';
+        if (st.next) {
+          cd.innerHTML = digits(H.hhmm(st.next.start - t));
+          note.innerHTML = `بيفتح <b>${GN[st.next.g]}</b> الساعة <b>${H.clock(st.next.start)}</b>`;
+        } else { cd.textContent = '--:--:--'; note.textContent = ''; }
       }
-      tap = { x: e.clientX, y: e.clientY, id: e.pointerId };
+      if (shown && !tweening) draw(target);
+    }
+    /* الشريط بيتملي من الصفر لمكانه (أول ما القسم يظهر، ومع كل تبديل فرع) */
+    function fill(dur) {
+      if (!anim) { draw(target); return; }
+      tweening = true; ringSec.classList.add('is-switch');
+      G.fromTo(view, { f: 0 }, { f: target, duration: dur, ease: 'czInOut', overwrite: true, onUpdate: () => draw(view.f),
+        onComplete: () => { tweening = false; requestAnimationFrame(() => ringSec.classList.remove('is-switch')); } });
+    }
+    function select(id) {
+      br = id;
+      sw.dataset.on = id;
+      $$('[data-br]', sw).forEach((b) => { const on = b.dataset.br === id; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; });
+      addr.textContent = `${B[id].name} — ${B[id].short}`;
+      paint();
+    }
+    function toggle(id) {
+      const next = id || (br === 'b1' ? 'b2' : 'b1');
+      if (next === br) return;
+      buzz(10); select(next);
+      if (!shown) return;
+      fill(1.15);
+      if (anim) {
+        G.fromTo([gEl, cd], { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.07, ease: 'cz' });
+        G.fromTo([note, addr], { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.7, stagger: 0.06, delay: 0.15, ease: 'cz' });
+      }
+    }
+    /* سويتش: الضغط على الفرع التاني بيختاره، والضغط على المختار بيقلب للتاني */
+    sw.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-br]');
+      toggle(b && b.dataset.br !== br ? b.dataset.br : null);
     });
-    svg.addEventListener('pointermove', (e) => {
-      if (!dragging) return;
-      const { a } = angleOf(e);
-      if (lastA > 270 && a < 90) cross(1); else if (lastA < 90 && a > 270) cross(-1);
-      lastA = a;
-      const m = Math.min(715, Math.round((a * 2) / 5) * 5);
-      const nat = half() * 720 + m;
-      if (Math.floor(nat / 60) !== Math.floor(at / 60)) buzz(4);
-      at = nat;
-      handNow(m / 2);
-      update();
+    sw.addEventListener('keydown', (e) => {
+      if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+      e.preventDefault(); toggle(); $(`[data-br="${br}"]`, sw).focus();
     });
-    const stop = () => { if (!dragging) return; dragging = false; dial.classList.remove('is-drag'); };
-    svg.addEventListener('pointerup', (e) => {
-      if (dragging) { stop(); return; }
-      if (!tap || tap.id !== e.pointerId) return;
-      const moved = Math.hypot(e.clientX - tap.x, e.clientY - tap.y); tap = null;
-      if (moved > 10) return;
-      const { a, dist } = angleOf(e);
-      if (dist < 118 || dist > 300) return;
-      const m = Math.min(705, Math.round((a * 2) / 15) * 15);
-      at = half() * 720 + m; buzz(6);
-      turnTo(shortest(m / 2), 0.8); update();
+    /* سحب الدايرة أو السويتش يمين/شمال = تبديل */
+    [ringEl, sw].forEach((el) => {
+      let x0 = null, y0 = 0;
+      el.addEventListener('pointerdown', (e) => { x0 = e.clientX; y0 = e.clientY; });
+      el.addEventListener('pointerup', (e) => {
+        if (x0 === null) return;
+        const dx = e.clientX - x0, dy = e.clientY - y0; x0 = null;
+        if (Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+          /* RTL: الفرع الأول يمين والجديد شمال → السحب ناحية فرع بيختاره */
+          toggle(dx < 0 ? 'b2' : 'b1');
+          el.dataset.swiped = '1'; setTimeout(() => { delete el.dataset.swiped; }, 60);
+        }
+      });
+      el.addEventListener('pointercancel', () => { x0 = null; });
+      el.addEventListener('click', (e) => { if (el.dataset.swiped) { e.stopPropagation(); e.preventDefault(); } }, true);
     });
-    svg.addEventListener('pointercancel', () => { stop(); tap = null; });
-    svg.addEventListener('keydown', (e) => {
-      const step = { ArrowUp: 15, ArrowRight: 15, ArrowDown: -15, ArrowLeft: -15, PageUp: 60, PageDown: -60 }[e.key];
-      if (!step) return;
-      e.preventDefault();
-      let v = at + step;
-      if (v >= 1440) { setDay(day + 1); v -= 1440; } else if (v < 0) { setDay(day - 1); v += 1440; }
-      const flip = (v >= 720) !== (at >= 720);
-      at = v;
-      if (flip) drawArcs(true);
-      turnTo(shortest(degOf(at)), 0.4); update();
-    });
-    daysBox.addEventListener('click', (e) => { const b = e.target.closest('[data-day]'); if (b && +b.dataset.day !== day) { day = +b.dataset.day; buzz(5); drawArcs(true); } });
-    gBox.addEventListener('click', (e) => { const b = e.target.closest('[data-g]'); if (b && b.dataset.g !== g) { g = b.dataset.g; buzz(5); drawArcs(true); } });
-    halfBox.addEventListener('click', (e) => {
-      const b = e.target.closest('[data-half]'); if (!b || +b.dataset.half === half()) return;
-      const toPM = +b.dataset.half === 1;
-      at += toPM ? 720 : -720; buzz(8);
-      turnTo(proxy.d + (toPM ? 360 : -360), 1.2);
-      drawArcs(true);
-    });
-    $('[data-hf-now]').addEventListener('click', () => {
-      const flip = (Math.round(nowMin() / 5) * 5 % 1440 >= 720) !== (at >= 720) || day !== new Date().getDay();
-      day = new Date().getDay(); at = Math.round(nowMin() / 5) * 5 % 1440; buzz(8);
-      turnTo(shortest(degOf(at)), 1);
-      if (flip) drawArcs(true); else update();
-    });
-    const show = () => {
-      if (shown) return; shown = true;
-      drawArcs(true);
-      if (anim) { proxy.d = degOf(at) - 360; setHand(proxy.d); turnTo(degOf(at), 2); } else handNow(degOf(at));
-    };
-    handNow(degOf(at));
-    if (!anim) show(); else update();
-    setInterval(() => { if (!dragging) update(); }, 30000);
-    window.CZDial = { show };
+    select(br);
+    if (!anim) draw(target); else draw(0);
+    setInterval(paint, 1000);
+    window.CZRing = { show: () => { if (shown) return; shown = true; paint(); fill(1.7); } };
   }
 
   /* ---------- الأسعار لكل فرع + VIP ---------- */
