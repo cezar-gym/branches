@@ -15,7 +15,14 @@
   const ok = window.gsap && window.ScrollTrigger && window.SplitText && window.CustomEase;
   const buzz = window.CZBuzz || (() => {});
 
-  const particles = () => window.CZParticles && CZParticles.init($('[data-particles]'), 'assets/img/emblem-light.png');
+  const particles = () => {
+    const c = $('[data-particles]');
+    if (!c || !window.CZParticles) return;
+    const go = () => CZParticles.init(c, 'assets/img/emblem-light.webp');
+    if (!('IntersectionObserver' in window)) { go(); return; }
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { io.disconnect(); go(); } }, { rootMargin: '1200px 0px' });
+    io.observe(c);
+  };
   const unlockIntro = () => { root.classList.remove('intro'); try { sessionStorage.setItem('cz-intro', '1'); } catch (e) {} };
   const failsafe = setTimeout(() => { root.classList.add('motion-off'); unlockIntro(); }, 5000);
 
@@ -54,13 +61,16 @@
     else window.scrollTo({ top: target === 0 ? 0 : target.getBoundingClientRect().top + scrollY, behavior: 'smooth' });
   }));
 
-  const ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+  const ready = (document.fonts && document.fonts.ready)
+    ? Promise.all([document.fonts.ready, document.fonts.load('800 40px Tajawal', 'سيزر بقى فرعين.'), document.fonts.load('700 40px "Clash Display"', 'CEZAR GYM')]).catch(() => {})
+    : Promise.resolve();
   ready.then(() => {
     clearTimeout(failsafe);
     const intro = root.classList.contains('intro');
     if (intro && lenis) lenis.stop();
     cursor();
     nav();
+    if (window.CZFitHero) CZFitHero(true);
     heroScroll();
     headings();
     fades();
@@ -112,8 +122,7 @@
       .fromTo('.hero__gym i', { scaleX: 0 }, { scaleX: 1, duration: 1.2, ease: 'czInOut' }, 0.7)
       .fromTo('.hero__gym span', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 1.2, ease: 'cz' }, 0.75);
     if (heroTitle) tl.fromTo(heroTitle.lines, { yPercent: 110 }, { yPercent: 0, duration: 1.2, stagger: 0.1 }, 0.55);
-    tl.fromTo('[data-hero-fade]', { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 1.1, stagger: 0.09 }, 0.85)
-      .fromTo('[data-tilt-btn]', { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.8 }, 1.4);
+    tl.fromTo('[data-hero-fade]', { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 1.1, stagger: 0.09 }, 0.85);
   }
   function heroScroll() {
     const t = $('[data-hero-lines]');
@@ -140,11 +149,16 @@
     const q = (el, p, d = 1.1) => (el ? gsap.quickTo(el, p, { duration: d, ease: 'power3' }) : () => {});
     const bx = q(bld, 'x'), by = q(bld, 'y'), wx = q(word, 'x'), wy = q(word, 'y');
     const cx = q(card, 'rotationY', 0.9), cy = q(card, 'rotationX', 0.9);
+    /* بنحرّك بس اللي ظاهر على الشاشة — الحساس بيبعت 60 مرة في الثانية */
+    const vis = { hero: true, card: false, join: false };
+    if ('IntersectionObserver' in window) {
+      const watch = (el, k) => { if (el) new IntersectionObserver(([e]) => { vis[k] = e.isIntersecting; }).observe(el); };
+      watch($('.hero'), 'hero'); watch(card, 'card'); watch($('[data-join]'), 'join');
+    } else { vis.card = true; vis.join = true; }
     const apply = (nx, ny) => {
-      bx(nx * -16); by(ny * -8); wx(nx * 26); wy(ny * 14);
-      cx(nx * 18); cy(ny * -14);
-      if (card) card.style.setProperty('--sheen', `${(nx * 45).toFixed(1)}%`);
-      if (window.CZParticles && CZParticles.tilt) CZParticles.tilt(nx, ny);
+      if (vis.hero) { bx(nx * -16); by(ny * -8); wx(nx * 26); wy(ny * 14); }
+      if (vis.card) { cx(nx * 18); cy(ny * -14); if (card) card.style.setProperty('--sheen', `${(nx * 45).toFixed(1)}%`); }
+      if (vis.join && window.CZParticles && CZParticles.tilt) CZParticles.tilt(nx, ny);
     };
     if (fine) {
       window.addEventListener('pointermove', (e) => apply((e.clientX / innerWidth - 0.5) * 2, (e.clientY / innerHeight - 0.5) * 2), { passive: true });
@@ -159,19 +173,21 @@
       apply(clamp(e.gamma / 22), clamp((e.beta - b0) / 22));
     };
     const listen = () => window.addEventListener('deviceorientation', onOri, { passive: true });
-    const btn = $('[data-tilt-btn]');
     const DOE = window.DeviceOrientationEvent;
-    if (DOE && typeof DOE.requestPermission === 'function') {
-      if (!btn) return;
-      btn.hidden = false;
-      btn.addEventListener('click', () => {
-        DOE.requestPermission().then((s) => {
-          if (s === 'granted') { listen(); buzz(10); }
-          gsap.to(btn, { opacity: 0, scale: 0.8, duration: 0.4, onComplete: () => { btn.hidden = true; } });
-        }).catch(() => { btn.hidden = true; });
-      });
-    } else if (DOE) listen();
+    if (!DOE) return;
+    if (typeof DOE.requestPermission === 'function') {
+      /* آيفون: مفيش زرار — أول لمسة في أي حتة بتطلب الإذن مرة واحدة، وبعدها الحركة شغّالة على طول */
+      let asked = false;
+      const ask = () => {
+        if (asked) return; asked = true;
+        document.removeEventListener('touchend', ask, true); document.removeEventListener('click', ask, true);
+        DOE.requestPermission().then((st) => { if (st === 'granted') listen(); }).catch(() => {});
+      };
+      document.addEventListener('touchend', ask, { capture: true, passive: true });
+      document.addEventListener('click', ask, true);
+    } else listen();
   }
+
 
   /* ---------- Nav + الشريط السفلي ---------- */
   function nav() {
@@ -258,7 +274,7 @@
       .fromTo(q('[data-b="b1"]'), { opacity: 0, y: -60 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power3.out' }, 1.1)
       .fromTo(q('[data-b="b2"]'), { opacity: 0, y: -60 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power3.out' }, 1.3);
     if (route) {
-      if (window.DrawSVGPlugin) tl.fromTo(route, { drawSVG: '0%' }, { drawSVG: '100%', duration: 0.9, ease: 'power1.inOut' }, 1.65);
+      if (window.DrawSVGPlugin) tl.fromTo([route, $('[data-route-halo]', sec)].filter(Boolean), { drawSVG: '0%' }, { drawSVG: '100%', duration: 0.9, ease: 'power1.inOut' }, 1.65);
       const p = { v: 0 };
       tl.fromTo(walker, { opacity: 0 }, { opacity: 1, duration: 0.08 }, 1.65)
         .fromTo(p, { v: 0 }, {

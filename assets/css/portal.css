@@ -103,7 +103,7 @@
 .flip.is-back .flip__inner { transform: rotateY(180deg); }
 .flip__face { position: absolute; inset: 0; border-radius: 20px; padding: 24px; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: grid; overflow: hidden; }
 .flip__front { background: var(--bg); box-shadow: inset 0 0 0 1px #34363c; grid-template-rows: auto 1fr auto; }
-.flip__front::before { content: ''; position: absolute; inset: 0; background: url('../img/emblem-ghost.png') no-repeat -18% 150% / 78%; opacity: 0.09; pointer-events: none; }
+.flip__front::before { content: ''; position: absolute; inset: 0; background: url('../img/emblem-ghost.webp') no-repeat -18% 150% / 78%; opacity: 0.09; pointer-events: none; }
 .flip__back { background: var(--paper); color: var(--ink); transform: rotateY(180deg); place-items: center; align-content: center; gap: 12px; }
 .card__top { display: flex; justify-content: space-between; align-items: center; }
 .card__top img { width: 54px; }

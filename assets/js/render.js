@@ -141,6 +141,37 @@
   live();
   setInterval(live, 30000);
 
+  /* ---------- الهيرو على الموبايل: المبنى بيتقاس عشان يقع بالظبط تحت «GYM» وفوق العنوان ----------
+     صورة المبنى: طوله 0.698 من عرضه. لو الشاشة قصيرة المبنى بيصغر (وأطرافه بتدوب)،
+     ولو طويلة بيفضل بعرض الشاشة والسما بتبان فوقه. التابلت والكمبيوتر ليهم CSS ثابت. */
+  const heroEl = $('.hero');
+  if (heroEl) {
+    const hw = $('.hero__word', heroEl), hc = $('.hero__copy', heroEl);
+    let lw = 0, lh = 0;
+    const fitHero = (force) => {
+      const W = window.innerWidth, Vh = document.documentElement.clientHeight;
+      if (!force && W === lw && Math.abs(Vh - lh) < 120) return;   // شريط العنوان بيظهر ويختفي — مش محتاج نعيد
+      lw = W; lh = Vh;
+      heroEl.style.minHeight = '';
+      if (heroEl.clientWidth >= 600) { heroEl.style.removeProperty('--sw'); heroEl.style.removeProperty('--base'); heroEl.classList.remove('hero--narrow'); return; }
+      const w = heroEl.clientWidth;
+      const top = hw.offsetTop + hw.offsetHeight + 8;
+      let base = hc.offsetTop - 8;
+      /* شاشة قصيرة جدًا (آيفون صغير والشرايط ظاهرة): الهيرو بيطول شوية بدل ما المبنى يتعصر */
+      const lack = w * 0.8 * 0.698 - (base - top);
+      if (lack > 0) { heroEl.style.minHeight = `${Math.ceil(heroEl.clientHeight + lack)}px`; base += lack; }
+      const sw = Math.min(w, (base - top) / 0.698);
+      heroEl.style.setProperty('--sw', `${sw.toFixed(1)}px`);
+      heroEl.style.setProperty('--base', `${base.toFixed(1)}px`);
+      heroEl.classList.toggle('hero--narrow', sw < w - 1);
+    };
+    fitHero(true);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitHero(true));
+    let rz;
+    window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => fitHero(false), 120); });
+    window.CZFitHero = fitHero;
+  }
+
   /* ---------- عارض الصور ملء الشاشة: سحب يمين/شمال، وسحب لتحت يقفل ---------- */
   const viewer = (() => {
     const el = $('[data-viewer]');
@@ -288,15 +319,30 @@
       });
       count.textContent = `${pad(cur + 1)} / ${pad(n())}`;
     };
+    /* الصور بتتحط لما الكوتشينة تقرب من الشاشة (كانت ~350KB بتتنزل مع أول الصفحة) */
+    let near = false;
+    const hydrate = () => {
+      if (!near) return;
+      $$('.dcard', deck).forEach((c) => {
+        if (c.dataset.bg) { c.style.setProperty('--img', c.dataset.bg); delete c.dataset.bg; }
+        const im = $('img[data-src]', c);
+        if (im) { im.decoding = 'async'; im.src = im.dataset.src; im.removeAttribute('data-src'); }
+      });
+    };
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { near = true; hydrate(); io.disconnect(); } }, { rootMargin: '900px 0px' });
+      io.observe(deck);
+    } else near = true;
     const build = (enter) => {
       const items = D.gallery[br];
       deck.innerHTML = items.map((g, i) => `
-        <figure class="dcard" data-i="${i}" style="--img:url('${abs(`assets/img/${g.img}@s.webp`)}')">
-          <div class="dcard__frame"><img src="assets/img/${g.img}@s.webp" width="860" height="${Math.round(860 * g.h / g.w)}" alt="${g.name} — ${B[br].name}" draggable="false"${i > 3 ? ' loading="lazy"' : ''}></div>
+        <figure class="dcard" data-i="${i}" data-bg="url('${abs(`assets/img/${g.img}@s.webp`)}')">
+          <div class="dcard__frame"><img data-src="assets/img/${g.img}@s.webp" width="860" height="${Math.round(860 * g.h / g.w)}" alt="${g.name} — ${B[br].name}" draggable="false"${i > 3 ? ' loading="lazy"' : ''}></div>
           <figcaption><b>${g.name}</b><span class="lat">${g.latin}</span></figcaption>
           <span class="dcard__zoom" aria-hidden="true">${ico('arrows-maximize')}</span>
         </figure>`).join('');
       cards = $$('.dcard', deck); cur = 0;
+      hydrate();
       if (enter && anim) {
         cards.forEach((c, i) => {
           const k = i; c.style.zIndex = String(50 - k);
@@ -409,7 +455,7 @@
     /* أرقام Clash مش ثابتة العرض — كل رقم في خانة ثابتة عشان العدّاد ميرقصش كل ثانية */
     const digits = (str) => str.split('').map((c) => (c === ':' ? '<span class="c">:</span>' : `<i>${c}</i>`)).join('');
     let br = (statusOf('b2').open || !statusOf('b1').open) ? 'b2' : 'b1';
-    let target = 0, tweening = false, shown = !anim;
+    let target = 0, tweening = false, shown = !anim, onScreen = true, drawn = -1;
     const view = { f: 0 };
     fg.style.strokeDasharray = CIRC;
     /* رأس الشريط بيمشي مع عقارب الساعة كل ما الشريط يتملي */
@@ -444,14 +490,15 @@
           note.innerHTML = `بيفتح <b>${GN[st.next.g]}</b> الساعة <b>${H.clock(st.next.start)}</b>`;
         } else { cd.textContent = '--:--:--'; note.textContent = ''; }
       }
-      if (shown && !tweening) draw(target);
+      /* الشريط بيتحرك أقل من بيكسل في الدقيقة — مبنرسموش غير لما الفرق يبان */
+      if (shown && !tweening && Math.abs(target - drawn) * CIRC > 0.35) { draw(target); drawn = target; }
     }
     /* الشريط بيتملي من الصفر لمكانه (أول ما القسم يظهر، ومع كل تبديل فرع) */
     function fill(dur) {
       if (!anim) { draw(target); return; }
       tweening = true; ringSec.classList.add('is-switch');
       G.fromTo(view, { f: 0 }, { f: target, duration: dur, ease: 'czInOut', overwrite: true, onUpdate: () => draw(view.f),
-        onComplete: () => { tweening = false; requestAnimationFrame(() => ringSec.classList.remove('is-switch')); } });
+        onComplete: () => { tweening = false; drawn = target; requestAnimationFrame(() => ringSec.classList.remove('is-switch')); } });
     }
     function select(id) {
       br = id;
@@ -498,7 +545,14 @@
     });
     select(br);
     if (!anim) draw(target); else draw(0);
-    setInterval(paint, 1000);
+    setInterval(() => { if (onScreen) paint(); }, 1000);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([e]) => {
+        onScreen = e.isIntersecting;
+        ringSec.classList.toggle('is-off', !onScreen);
+        if (onScreen) paint();
+      }, { rootMargin: '120px 0px' }).observe(ringSec);
+    }
     window.CZRing = { show: () => { if (shown) return; shown = true; paint(); fill(1.7); } };
   }
 

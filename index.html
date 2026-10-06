@@ -15,10 +15,10 @@
 <link rel="icon" href="assets/img/emblem.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/clash-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/tajawal-800-ar.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/img/hero-night@s.webp" as="image" media="(max-width: 999px)">
-<link rel="preload" href="assets/img/hero-night.webp" as="image" media="(min-width: 1000px)">
-<link rel="stylesheet" href="assets/css/base.css?v=22">
-<link rel="stylesheet" href="assets/css/site.css?v=22">
+<link rel="preload" as="image" href="assets/img/hero-night.webp" imagesrcset="assets/img/hero-night@s.webp 640w, assets/img/hero-night.webp 852w" imagesizes="(min-width: 1000px) 54vw, 100vw" fetchpriority="high">
+<link rel="preload" as="image" href="assets/img/hero-sky.webp" imagesrcset="assets/img/hero-sky@s.webp 640w, assets/img/hero-sky.webp 1080w" imagesizes="100vw" media="(max-width: 999px)">
+<link rel="stylesheet" href="assets/css/base.css?v=23">
+<link rel="stylesheet" href="assets/css/site.css?v=23">
 <noscript><style>html.intro .loader{display:none}html.intro body{overflow:auto}[data-b],[data-reveal]{opacity:1!important}</style></noscript>
 <script>
   try { if (sessionStorage.getItem('cz-intro') || matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.remove('intro'); } catch (e) { document.documentElement.classList.remove('intro'); }
@@ -81,7 +81,6 @@
     <i class="hero__ground" aria-hidden="true"></i>
     <div class="hero__meta mono">
       <span data-hero-fade>Two branches</span>
-      <button class="tiltbtn" type="button" data-tilt-btn hidden aria-label="فعّل حركة الموبايل" title="فعّل حركة الموبايل"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="4" width="8" height="16" rx="2"/><path d="M4.6 9a6 6 0 0 0 0 6M19.4 9a6 6 0 0 1 0 6"/></svg></button>
       <span data-hero-fade>Beni Suef</span>
     </div>
     <div class="hero__word" aria-hidden="true" data-hero-word>
@@ -93,7 +92,7 @@
     </div>
     <i class="hero__shade" aria-hidden="true"></i>
     <div class="hero__copy" data-hero-copy>
-      <h1 class="hero__title" data-hero-lines>سيزر بقى فرعين<span class="hero__dot">.</span></h1>
+      <h1 class="hero__title" data-hero-lines>سيزر بقى <span class="nw">فرعين<span class="hero__dot">.</span></span></h1>
       <p class="hero__sub" data-hero-fade>في نفس الحتة، ومواعيدهم مكمّلة بعض — فدايمًا فيه فرع فاتحلك.</p>
       <div class="hero__ctas" data-hero-fade>
         <a class="btn btn--lime" data-wa="أهلًا، عايز أعرف تفاصيل الاشتراك في سيزر جيم" href="https://wa.me/201097419761" target="_blank" rel="noopener">
@@ -145,6 +144,7 @@
           <circle class="map__poi" cx="402" cy="228" r="7"/>
           <text class="map__label map__label--sm" x="196" y="1052" text-anchor="middle">بنك مصر · زمزم</text>
           <circle class="map__poi" cx="232" cy="1004" r="7"/>
+          <path class="route__halo" data-route-halo d="M465 320 L 404 336 L 418 474 A 48 48 0 0 0 386 566 L 336 800 L 236 918 L 195 950"/>
           <path class="route" data-route d="M465 320 L 404 336 L 418 474 A 48 48 0 0 0 386 566 L 336 800 L 236 918 L 195 950"/>
           <path class="route__flow" d="M465 320 L 404 336 L 418 474 A 48 48 0 0 0 386 566 L 336 800 L 236 918 L 195 950"/>
           <circle class="walker" r="11" cx="465" cy="320" data-walker/>
@@ -374,10 +374,10 @@
 <script src="assets/vendor/CustomEase.min.js"></script>
 <script src="assets/vendor/DrawSVGPlugin.min.js"></script>
 <script src="assets/vendor/lenis.min.js"></script>
-<script src="assets/js/data.js?v=22"></script>
-<script src="assets/js/hours.js?v=22"></script>
-<script src="assets/js/render.js?v=22"></script>
-<script src="assets/js/particles.js?v=22"></script>
-<script src="assets/js/site.js?v=22"></script>
+<script src="assets/js/data.js?v=23"></script>
+<script src="assets/js/hours.js?v=23"></script>
+<script src="assets/js/render.js?v=23"></script>
+<script src="assets/js/particles.js?v=23"></script>
+<script src="assets/js/site.js?v=23"></script>
 </body>
 </html>

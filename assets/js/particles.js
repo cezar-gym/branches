@@ -59,6 +59,7 @@ window.CZParticles = (() => {
       if (formStart && formed < 1) formed = Math.min(1, (now - formStart) / 2600);
       const size = W < 700 ? 1.8 : 2.2;
       const R = W < 700 ? 70 : 110, R2 = R * R;
+      let ga = -1; // نغيّر الشفافية بس لما تتغيّر فعلًا (بعد ما الشعار يتجمّع كلها نفس القيمة)
       for (let c = 0; c < 2; c++) {
         ctx.fillStyle = COLORS[c];
         for (let k = 0; k < pts.length; k++) {
@@ -80,7 +81,8 @@ window.CZParticles = (() => {
             p.vy = (p.vy + (hy - p.y) * 0.055) * 0.84;
             p.x += p.vx; p.y += p.vy;
           } else { p.x = hx; p.y = hy; }
-          ctx.globalAlpha = 0.35 + local * 0.6;
+          const al = Math.round((0.35 + local * 0.6) * 100) / 100;
+          if (al !== ga) { ctx.globalAlpha = al; ga = al; }
           ctx.fillRect(p.x, p.y, size, size);
         }
       }

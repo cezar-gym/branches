@@ -7,7 +7,7 @@
 :root { --dock-h: 64px; --safe-b: env(safe-area-inset-bottom, 0px); }
 body { padding-bottom: calc(var(--dock-h) + 24px + var(--safe-b)); }
 @media (min-width: 1000px) { body { padding-bottom: 0; } }
-@media (hover: none) { .grain { animation: none; opacity: 0.05; } }
+@media (hover: none) { .grain { animation: none; opacity: 0.05; inset: 0; } } /* ثابت على الموبايل فمش محتاج يبقى 4 أضعاف الشاشة */
 
 /* ---------- النافبار على الموبايل ---------- */
 .nav { height: 64px; gap: 10px; }
@@ -54,7 +54,8 @@ html.intro .dock { transform: translateY(140%); }
 .loader { position: fixed; inset: 0; z-index: 95; background: var(--bg); display: none; place-items: center; --lp: 0; }
 html.intro .loader { display: grid; }
 html.intro body { overflow: hidden; }
-.loader__box { display: grid; justify-items: center; gap: 30px; }
+.loader__box { position: relative; isolation: isolate; display: grid; justify-items: center; gap: 30px; }
+.loader__box::before { content: ''; position: absolute; z-index: -1; inset: -30% -20%; background: radial-gradient(closest-side, var(--lime-haze), transparent); pointer-events: none; }
 .loader__em { width: clamp(190px, 52vw, 320px); overflow: visible; }
 .loader__em path { fill-opacity: 0; stroke-width: 12; }
 .loader__em .em-lime { stroke: var(--lime); fill: var(--lime); }
@@ -79,25 +80,32 @@ html.intro body { overflow: hidden; }
   --base: calc(100svh - 296px);
   --hz: calc(var(--base) - var(--sw) * 0.36);
   position: relative; isolation: isolate; min-height: 100svh; display: flex; flex-direction: column;
-  padding: 92px 0 24px; overflow: hidden; background: #0b0d12;
+  padding: clamp(80px, 11svh, 92px) 0 clamp(16px, 3svh, 24px); overflow: hidden; background: #0b0d12;
 }
 .hero__sky { position: absolute; inset: 0; z-index: -3; pointer-events: none; }
 .hero__sky picture { display: contents; }
 .hero__sky img { position: absolute; left: 0; width: 100%; max-width: none; height: auto; top: calc(var(--hz) - 100vw * 1.791); transform-origin: 50% 100%; will-change: transform; }
 .hero__ground { position: absolute; inset: var(--base) 0 0; z-index: -2; background: linear-gradient(#1b1511, var(--bg) 75%); }
 .hero__meta { position: relative; z-index: 4; display: flex; justify-content: space-between; padding-inline: var(--gx); color: rgba(243, 241, 235, 0.66); letter-spacing: 0.34em; }
-.hero__word { position: relative; z-index: 1; display: grid; justify-items: center; margin-top: clamp(14px, 3.2svh, 34px); will-change: transform; }
+.hero__word { position: relative; z-index: 1; display: grid; justify-items: center; margin-top: clamp(8px, 2svh, 34px); will-change: transform; }
 .hero__big {
   display: flex; justify-content: center; direction: ltr;
-  font-family: var(--f-lat); font-weight: 700; font-size: 25.6vw; line-height: 0.8; letter-spacing: -0.03em; color: #F7F6F1;
+  font-family: var(--f-lat); font-weight: 700; font-size: min(25.6vw, 11.6svh); line-height: 0.8; letter-spacing: -0.03em; color: #F7F6F1;
+}
+.hero__big .hb { display: inline-block; overflow: hidden; padding-top: 0.06em; will-change: transform; }
+.hero__big .hbi {
+  display: inline-block; will-change: transform;
   -webkit-mask-image: url('../img/grunge.webp'); mask-image: url('../img/grunge.webp');
   -webkit-mask-size: 760px auto; mask-size: 760px auto;
 }
-.hero__big .hb { display: inline-block; overflow: hidden; padding-top: 0.06em; will-change: transform; }
-.hero__big .hbi { display: inline-block; will-change: transform; }
+.hero__big .hb:nth-child(2) .hbi { -webkit-mask-position: -170px -60px; mask-position: -170px -60px; }
+.hero__big .hb:nth-child(3) .hbi { -webkit-mask-position: -330px -20px; mask-position: -330px -20px; }
+.hero__big .hb:nth-child(4) .hbi { -webkit-mask-position: -480px -110px; mask-position: -480px -110px; }
+.hero__big .hb:nth-child(5) .hbi { -webkit-mask-position: -610px -40px; mask-position: -610px -40px; }
+.nw { white-space: nowrap; }
 .hero__gym {
-  display: flex; align-items: center; gap: 4.4vw; margin-top: 3.4vw; direction: ltr;
-  font-family: var(--f-lat); font-weight: 700; font-size: 10.6vw; line-height: 0.8; letter-spacing: 0.34em; color: var(--lime);
+  display: flex; align-items: center; gap: 4.4vw; margin-top: min(3.4vw, 1.5svh); direction: ltr;
+  font-family: var(--f-lat); font-weight: 700; font-size: min(10.6vw, 4.8svh); line-height: 0.8; letter-spacing: 0.34em; color: var(--lime);
   text-shadow: 0 0 18px var(--lime-glow), 0 0 42px var(--lime-haze);
 }
 .hero__gym span { margin-right: -0.34em; }
@@ -108,26 +116,32 @@ html.intro body { overflow: hidden; }
   -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent);
 }
 .hero__shade { position: absolute; inset: auto 0 0; height: 44%; z-index: 3; pointer-events: none; background: linear-gradient(to top, rgba(11, 12, 14, 0.94) 6%, rgba(11, 12, 14, 0.5) 46%, rgba(11, 12, 14, 0)); }
-.hero__copy { position: relative; z-index: 4; margin-top: auto; padding: 0 var(--gx); display: grid; justify-items: center; gap: 12px; text-align: center; }
-.hero__title { font-size: clamp(40px, 11.4vw, 76px); font-weight: 800; line-height: 1.1; text-shadow: 0 2px 28px rgba(0, 0, 0, 0.55); }
+.hero__copy { position: relative; z-index: 4; margin-top: auto; padding: 0 var(--gx); display: grid; justify-items: center; gap: clamp(8px, 1.4svh, 12px); text-align: center; }
+.hero__title { font-size: clamp(34px, min(11.4vw, 5.6svh), 76px); font-weight: 800; line-height: 1.1; text-shadow: 0 2px 28px rgba(0, 0, 0, 0.55); }
 .hero__dot { color: var(--lime); text-shadow: 0 0 16px var(--lime-glow), 0 0 36px var(--lime-haze); }
-.hero__sub { color: rgba(243, 241, 235, 0.8); font-size: 17px; line-height: 1.65; max-width: 30ch; text-shadow: 0 1px 14px rgba(0, 0, 0, 0.7); }
-.hero__ctas { display: grid; grid-template-columns: 1fr; gap: 10px; width: 100%; max-width: 460px; margin-top: 6px; }
-.hero__ctas .btn { min-height: 58px; font-size: 18px; }
-.hero__ctas .btn--ghost { background: rgba(11, 12, 14, 0.42); box-shadow: inset 0 0 0 1.5px rgba(243, 241, 235, 0.55); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.hero__sub { color: rgba(243, 241, 235, 0.84); font-size: clamp(15px, 2.3svh, 17px); line-height: 1.6; max-width: 30ch; text-shadow: 0 1px 14px rgba(0, 0, 0, 0.7); }
+.hero__ctas { display: grid; grid-template-columns: 1fr; gap: clamp(8px, 1.3svh, 10px); width: 100%; max-width: 460px; margin-top: 4px; }
+.hero__ctas .btn { min-height: clamp(50px, 7.4svh, 58px); font-size: clamp(16.5px, 2.5svh, 18px); }
+.hero__ctas .btn--ghost { background: rgba(11, 12, 14, 0.58); box-shadow: inset 0 0 0 1.5px rgba(243, 241, 235, 0.55); }
 .hero__meta { align-items: center; }
-.tiltbtn { display: grid; place-items: center; width: 34px; height: 34px; margin-block: -10px; border-radius: 50%; color: var(--lime); box-shadow: inset 0 0 0 1px var(--lime-glow), 0 0 16px var(--lime-haze); -webkit-tap-highlight-color: transparent; }
-.tiltbtn svg { width: 18px; height: 18px; filter: drop-shadow(0 0 5px var(--lime-glow)); }
 @media (min-width: 600px) and (max-width: 999px) { .hero__ctas { grid-template-columns: 1fr 1fr; max-width: 560px; } }
 /* تابلت وكمبيوتر: المبنى بيغطي نص CEZAR، فـGYM بتطلع سطر صغير فوقها */
 @media (min-width: 600px) {
+  .hero__building {
+    -webkit-mask-image: linear-gradient(#000 82%, transparent), linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    mask-image: linear-gradient(#000 82%, transparent), linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    -webkit-mask-composite: source-in; mask-composite: intersect;
+  }
   .hero__gym { position: absolute; top: calc(-1 * clamp(14px, 3vh, 30px) - 0.95em); font-size: 13px; gap: 16px; letter-spacing: 0.6em; margin: 0; }
   .hero__gym span { margin-right: -0.6em; }
   .hero__gym i { width: 64px; height: 2px; }
 }
-/* شاشة قصيرة: المشهد أضيق من الشاشة → أطراف الصورة بتدوب في الأرض والسما */
-@media (max-width: 999px) and (max-height: 760px), (min-width: 600px) and (max-width: 999px) {
-  .hero__scene { -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
+/* المشهد أضيق من الشاشة (تابلت/كمبيوتر، أو موبايل قصير — render.js بيحط hero--narrow) → أطراف الصورة بتدوب في الأرض والسما.
+   الماسك على الصورة نفسها عشان يترسم مرة واحدة مع طبقتها، مش كل فريم وهي بتكبر مع السكرول */
+.hero--narrow .hero__building {
+  -webkit-mask-image: linear-gradient(#000 82%, transparent), linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(#000 82%, transparent), linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  -webkit-mask-composite: source-in; mask-composite: intersect;
 }
 @media (min-width: 1000px) {
   .hero {
@@ -140,7 +154,7 @@ html.intro body { overflow: hidden; }
   .hero__big { font-size: min(23vw, 420px); }
   .hero__word { margin-top: 1.5vh; }
   .hero__meta { padding-top: 2px; }
-  .hero__scene { left: 37%; -webkit-mask-image: linear-gradient(90deg, transparent, #000 13%, #000 87%, transparent); mask-image: linear-gradient(90deg, transparent, #000 13%, #000 87%, transparent); }
+  .hero__scene { left: 37%; }
   .hero__shade { height: 34%; }
   .hero__copy { position: absolute; inset: auto var(--gx) 56px auto; width: min(31%, 460px); padding: 0; justify-items: start; text-align: start; }
   .hero__title { font-size: clamp(48px, 4.6vw, 80px); }
@@ -351,6 +365,7 @@ html.intro body { overflow: hidden; }
 }
 @keyframes beat { 0%, 55% { r: 7; } 56%, 100% { r: 9.5; } }
 .clock.shut .ring-head { opacity: 0; animation: none; }
+.clock.is-off .ring-head { animation-play-state: paused; }
 /* وقت تبديل الفرع الشريط بيتملي من الأول بـGSAP — من غير ترانزيشن الثانية */
 .clock.is-switch .ring-fg { transition: stroke 0.6s var(--cz); }
 .clock.is-switch .ring-head { transition: fill 0.6s var(--cz); }
@@ -436,7 +451,7 @@ html.intro body { overflow: hidden; }
   background: var(--ink); box-shadow: inset 0 0 0 1px var(--line), 0 30px 60px rgba(0, 0, 0, 0.5);
   display: grid; grid-template-rows: auto 1fr auto; transform-style: preserve-3d; will-change: transform; overflow: hidden;
 }
-.mcard::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: url('../img/emblem-ghost.png') no-repeat 115% 140% / 78%; opacity: 0.08; }
+.mcard::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: url('../img/emblem-ghost.webp') no-repeat 115% 140% / 78%; opacity: 0.08; }
 .mcard::after { content: ''; position: absolute; inset: -40%; pointer-events: none; background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.08) 50%, transparent 60%); transform: translateX(var(--sheen, -30%)); }
 .mcard__top { display: flex; justify-content: space-between; align-items: center; }
 .mcard__top img { width: 52px; }
@@ -526,14 +541,12 @@ main { overflow-x: clip; }
 /* ---------- النور: الفسفوري منوّر ومليان طاقة في كل حتة ---------- */
 .dock__join { box-shadow: 0 0 0 1px var(--lime-hot) inset, 0 0 18px var(--lime-glow), 0 0 40px var(--lime-haze); }
 .loader__bar { box-shadow: 0 0 12px var(--lime), 0 0 26px var(--lime-glow); }
-.loader__em .em-lime { filter: drop-shadow(0 0 18px var(--lime-glow)); }
 .sec-head .mono::before { height: 2px; border-radius: 2px; box-shadow: 0 0 8px var(--lime-glow); }
 .now__item.b2 .n, .bcard--b2 .bcard__n, .wa-sheet__opts .b2 .n, .ppl__row .dot, .banks__line b,
 .bcard__vip b, .pin--b2 .pin__tag b, .family__copy .mono, .vip__word { text-shadow: 0 0 14px var(--lime-glow), 0 0 34px var(--lime-haze); }
 .now__item.is-open .st i { box-shadow: 0 0 8px var(--lime), 0 0 16px var(--lime-glow); }
 .now__item.is-open { box-shadow: inset 0 0 0 1px rgba(189, 247, 59, 0.5), 0 0 26px -6px var(--lime-haze); }
-.route { filter: drop-shadow(0 0 5px var(--lime-glow)) drop-shadow(0 0 14px var(--lime-haze)); }
-.walker { filter: drop-shadow(0 0 8px var(--lime-glow)); }
+.route__halo { fill: none; stroke: var(--lime); stroke-width: 24; stroke-linecap: round; stroke-linejoin: round; opacity: 0.16; }
 .pin--b2 .pin__dot { box-shadow: 0 0 10px var(--lime), 0 0 26px var(--lime-glow); }
 .vip-chip { box-shadow: 0 0 0 1px var(--lime-hot) inset, 0 0 22px var(--lime-glow), 0 0 48px var(--lime-haze); }
 .newtag { box-shadow: inset 0 0 0 1px var(--lime), 0 0 14px var(--lime-haze); text-shadow: 0 0 10px var(--lime-glow); }
