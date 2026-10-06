@@ -152,7 +152,7 @@
       const W = window.innerWidth, Vh = document.documentElement.clientHeight;
       if (!force && W === lw && Math.abs(Vh - lh) < 120) return;   // شريط العنوان بيظهر ويختفي — مش محتاج نعيد
       lw = W; lh = Vh;
-      heroEl.style.minHeight = '';
+      heroEl.style.minHeight = ''; hw.style.marginTop = '';
       if (heroEl.clientWidth >= 600) { heroEl.style.removeProperty('--sw'); heroEl.style.removeProperty('--base'); heroEl.classList.remove('hero--narrow'); return; }
       const w = heroEl.clientWidth;
       const top = hw.offsetTop + hw.offsetHeight + 8;
@@ -160,7 +160,10 @@
       /* شاشة قصيرة جدًا (آيفون صغير والشرايط ظاهرة): الهيرو بيطول شوية بدل ما المبنى يتعصر */
       const lack = w * 0.8 * 0.698 - (base - top);
       if (lack > 0) { heroEl.style.minHeight = `${Math.ceil(heroEl.clientHeight + lack)}px`; base += lack; }
-      const sw = Math.min(w, (base - top) / 0.698);
+      const sw = Math.min(w * 1.08, (base - top) / 0.698);
+      /* شاشة طويلة: المبنى وصل أقصاه — الفاضي بيتقسم فوق CEZAR وتحت GYM بدل ما يبقى كله فجوة */
+      const spare = (base - top) - sw * 0.698;
+      if (spare > 12) hw.style.marginTop = `${(parseFloat(getComputedStyle(hw).marginTop) + spare * 0.45).toFixed(1)}px`;
       heroEl.style.setProperty('--sw', `${sw.toFixed(1)}px`);
       heroEl.style.setProperty('--base', `${base.toFixed(1)}px`);
       heroEl.classList.toggle('hero--narrow', sw < w - 1);

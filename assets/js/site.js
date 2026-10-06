@@ -44,7 +44,7 @@
 
   /* ---------- Smooth scroll (العجلة بس — اللمس بيفضل native عشان يبقى سلس على الموبايل) ---------- */
   let lenis = null;
-  if (window.Lenis) {
+  if (window.Lenis && fine) {
     lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 0.95 });
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add((t) => lenis.raf(t * 1000));
@@ -132,7 +132,7 @@
     gsap.set('.hero__big .hbi', { yPercent: 110 });
     gsap.set(['[data-hero-building]', '.hero__sky img', '.hero__gym span'], { opacity: 0 });
     gsap.set('.hero__gym i', { scaleX: 0 });
-    gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.6 } })
+    gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 0.3 } })
       .to('[data-hero-building]', { scale: 1.2, yPercent: 8, ease: 'none' }, 0)
       .to('.hero__big .hb', { x: (i) => (i - 2) * window.innerWidth * 0.13, yPercent: -40, opacity: 0.08, ease: 'none' }, 0)
       .to('.hero__gym', { opacity: 0, yPercent: -60, ease: 'none', duration: 0.5 }, 0)
@@ -146,19 +146,32 @@
      الجزيئات كل واحدة بعمق مختلف. على iOS لازم إذن، فبيظهر زرار «فعّل حركة الموبايل». */
   function tilt() {
     const bld = $('[data-hero-building]'), word = $('[data-hero-word]'), card = $('[data-mcard]');
-    const q = (el, p, d = 1.1) => (el ? gsap.quickTo(el, p, { duration: d, ease: 'power3' }) : () => {});
-    const bx = q(bld, 'x'), by = q(bld, 'y'), wx = q(word, 'x'), wy = q(word, 'y');
-    const cx = q(card, 'rotationY', 0.9), cy = q(card, 'rotationX', 0.9);
-    /* بنحرّك بس اللي ظاهر على الشاشة — الحساس بيبعت 60 مرة في الثانية */
+    const set = (el, p) => (el ? gsap.quickSetter(el, p) : () => {});
+    const sbx = set(bld, 'x'), sby = set(bld, 'y'), swx = set(word, 'x'), swy = set(word, 'y');
+    const scx = set(card, 'rotationY'), scy = set(card, 'rotationX');
+    /* بنحرّك بس اللي ظاهر على الشاشة */
     const vis = { hero: true, card: false, join: false };
     if ('IntersectionObserver' in window) {
       const watch = (el, k) => { if (el) new IntersectionObserver(([e]) => { vis[k] = e.isIntersecting; }).observe(el); };
       watch($('.hero'), 'hero'); watch(card, 'card'); watch($('[data-join]'), 'join');
     } else { vis.card = true; vis.join = true; }
-    const apply = (nx, ny) => {
-      if (vis.hero) { bx(nx * -16); by(ny * -8); wx(nx * 26); wy(ny * 14); }
-      if (vis.card) { cx(nx * 18); cy(ny * -14); if (card) card.style.setProperty('--sheen', `${(nx * 45).toFixed(1)}%`); }
+    /* الحساس بيبعت ~60 قراءة في الثانية فيها رعشة — بنقرّبها لأقرب 0.005 وبنمشّي القيمة الظاهرة
+       ناحيتها بنعومة في فريم واحد، ولما توصل التيكر بيقف لحد القراءة الجاية */
+    const tgt = { x: 0, y: 0 }, cur = { x: 0, y: 0 };
+    let running = false;
+    const step = () => {
+      const k = 1 - Math.pow(0.92, gsap.ticker.deltaRatio());
+      cur.x += (tgt.x - cur.x) * k; cur.y += (tgt.y - cur.y) * k;
+      const nx = cur.x, ny = cur.y;
+      if (vis.hero) { sbx(nx * -16); sby(ny * -8); swx(nx * 26); swy(ny * 14); }
+      if (vis.card) { scx(nx * 18); scy(ny * -14); card.style.setProperty('--sheen', `${(nx * 45).toFixed(1)}%`); }
       if (vis.join && window.CZParticles && CZParticles.tilt) CZParticles.tilt(nx, ny);
+      if (Math.abs(tgt.x - cur.x) < 0.002 && Math.abs(tgt.y - cur.y) < 0.002) { gsap.ticker.remove(step); running = false; }
+    };
+    const apply = (nx, ny) => {
+      if (!vis.hero && !vis.card && !vis.join) return;
+      tgt.x = Math.round(nx * 200) / 200; tgt.y = Math.round(ny * 200) / 200;
+      if (!running && (tgt.x !== cur.x || tgt.y !== cur.y)) { running = true; gsap.ticker.add(step); }
     };
     if (fine) {
       window.addEventListener('pointermove', (e) => apply((e.clientX / innerWidth - 0.5) * 2, (e.clientY / innerHeight - 0.5) * 2), { passive: true });
@@ -205,8 +218,6 @@
   function dock() {
     const el = $('[data-dock]');
     if (!el) return;
-    el.classList.add('is-away');
-    ScrollTrigger.create({ start: () => innerHeight * 0.35, end: 'max', onToggle: (s) => el.classList.toggle('is-away', !s.isActive) });
     $$('[data-dock-to]', el).forEach((a) => {
       const sec = $('#' + a.dataset.dockTo);
       if (!sec) return;
